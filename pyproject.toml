@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "fastfood"
+version = "0.1.0"
+description = ""
+authors = ["pi3c <pi3c@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+sqlalchemy = "^2.0.25"
+fastapi = "^0.109.0"
+uvicorn = "^0.26.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = ". fastfood"
