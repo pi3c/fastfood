@@ -1,6 +1,9 @@
+import asyncio
 import sys
 
 import uvicorn
+
+from fastfood.crud import create_db_and_tables
 
 
 def run_app():
@@ -20,4 +23,7 @@ if __name__ == "__main__":
         pass
 
     if "--run-server" in sys.argv:
+        async def create():
+            await create_db_and_tables()
+        asyncio.run(create())
         run_app()
