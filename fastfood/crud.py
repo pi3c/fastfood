@@ -1,7 +1,8 @@
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastfood.dbase import async_session_maker, async_engine
 from fastfood import models, schemas
+from fastfood.dbase import async_engine, async_session_maker
 
 
 async def create_db_and_tables():
@@ -12,12 +13,11 @@ async def create_db_and_tables():
 
 class Crud:
     @staticmethod
-    async def get_menus():
-        async with async_session_maker() as session:
+    async def get_menus(session: AsyncSession):
+        async with session:
             query = select(models.Menu)
             result = await session.execute(query)
-            return result.scalars().all()
-
+            return result.mappings().all()
 
     @staticmethod
     async def add_menu(menu: schemas.Menu):
