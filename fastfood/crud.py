@@ -1,8 +1,9 @@
-from sqlalchemy import select
+from uuid import UUID
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import models, schemas
-from fastfood.dbase import async_engine, async_session_maker
+from fastfood.dbase import async_engine
 
 
 async def create_db_and_tables():
@@ -17,15 +18,40 @@ class Crud:
         async with session:
             query = select(models.Menu)
             result = await session.execute(query)
-            return result.mappings().all()
+            return result.scalars().all()
 
     @staticmethod
-    async def add_menu(menu: schemas.Menu):
-        async with async_session_maker() as session:
-            new_menu_item = models.Menu(
-                title=menu.title,
-                description=menu.description,
-            )
-            session.add(new_menu_item)
+    async def create_menu_item(menu: schemas.MenuBase, session: AsyncSession):
+        async with session:
+            new_menu = models.Menu(**menu.model_dump())
+            session.add(new_menu)
             await session.commit()
-            return new_menu_item
+            await session.refresh(new_menu)
+            return new_menu
+
+    @staticmethod
+    async def get_menu_item(menu_id: UUID, session: AsyncSession):
+        async with session:
+            query = select(models.Menu).where(models.Menu.id == menu_id)
+            menu = await session.execute(query)
+            return menu.scalars().one_or_none()
+
+    @staticmethod
+    async def update_menu_item(menu_id: UUID,
+                               menu: schemas.MenuBase,
+                               session: AsyncSession,
+                               ):
+        async with session:
+            query = update(models.Menu).where(models.Menu.id == menu_id).values(**menu.model_dump())
+            await session.execute(query)
+            await session.commit()
+            qr = select(models.Menu).where(models.Menu.id == menu_id)
+            updated_menu = await session.execute(qr)
+            return updated_menu.scalars().one()
+
+    @staticmethod
+    async def delete_menu_item(menu_id: UUID, session: AsyncSession):
+        async with session:
+            query = delete(models.Menu).where(models.Menu.id == menu_id)
+            await session.execute(query)
+            await session.commit()

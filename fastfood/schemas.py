@@ -1,39 +1,23 @@
 from decimal import Decimal
+from typing import List, Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
 
 class MenuBase(BaseModel):
     title: str
-    description: str | None = None
-
-
-class SubMenuBase(MenuBase):
-    pass
-
-
-class DishBase(MenuBase):
-    price: Decimal
-
-
-class Dish():
-    id: int
-
+    description: Optional[str]
+    
     class Config:
-        orm_mode = True
-
-
-class SubMenu(SubMenuBase):
-    id: int
-    # dishes: list[Dish]
-
-    class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Menu(MenuBase):
-    id: int
-    # submenus: list[SubMenu]
+    id: UUID
+    title: str
+    description: Optional[str]
+    # submenus: Optional[List[SubMenu]]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
