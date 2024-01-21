@@ -17,8 +17,16 @@ class Menu(MenuBase):
     id: UUID
 
 
+class MenuRead(Menu):
+    submenus_count: int
+    dishes_count: int
+
+class SubMenuRead(Menu):
+    dishes_count: int
+
+
 class DishBase(MenuBase):
-    price: str
+    price: float
 
 
 class Dish(DishBase, Menu):

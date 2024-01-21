@@ -1,5 +1,6 @@
+from re import sub
 from uuid import UUID
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import models, schemas
@@ -34,7 +35,22 @@ class Crud:
         async with session:
             query = select(models.Menu).where(models.Menu.id == menu_id)
             menu = await session.execute(query)
-            return menu.scalars().one_or_none()
+            menu = menu.scalars().one_or_none()
+            if menu is None:
+                return None
+            submenu_query = select(func.count(models.SubMenu.id).label("counter")).filter(models.SubMenu.parent_menu == menu_id)
+            counter = await session.execute(submenu_query)
+
+            dish_query = (
+                select(func.count(models.Dish.id))
+                .join(models.SubMenu)
+                .filter(models.Dish.parent_submenu == models.SubMenu.id)
+                .filter(models.SubMenu.parent_menu == menu_id)
+            )
+            dishes = await session.execute(dish_query)
+            menu.submenus_count = counter.scalars().one_or_none()
+            menu.dishes_count = dishes.scalars().one_or_none()
+            return menu
 
     @staticmethod
     async def update_menu_item(menu_id: UUID,
@@ -82,7 +98,19 @@ class Crud:
         async with session:
             query = select(models.SubMenu).where(models.SubMenu.id == submenu_id)
             submenu = await session.execute(query)
-            return submenu.scalars().one_or_none()
+            submenu = submenu.scalars().one_or_none()
+            if submenu is None:
+                return None
+
+            dish_query = (
+                select(func.count(models.Dish.id))
+                .join(models.SubMenu)
+                .filter(models.Dish.parent_submenu == models.SubMenu.id)
+            )
+            dishes = await session.execute(dish_query)
+            submenu.dishes_count = dishes.scalars().one_or_none()
+
+            return submenu
 
     @staticmethod
     async def update_submenu_item(

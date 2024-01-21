@@ -11,6 +11,11 @@ from fastfood.dbase import get_async_session
 router = APIRouter()
 
 
+def price_converter(dish: dict) -> dict:
+    dish.price = str(dish.price)
+    return dish
+
+
 @router.get("/api/v1/menus", response_model=Optional[List[schemas.Menu]])
 async def get_menus(session: AsyncSession = Depends(get_async_session)):
     result = await crud.get_menus(session=session)
@@ -29,7 +34,7 @@ async def add_menu(
     return result
 
 
-@router.get("/api/v1/menus/{menu_id}", response_model=schemas.Menu)
+@router.get("/api/v1/menus/{menu_id}", response_model=schemas.MenuRead)
 async def get_menu(
         menu_id: UUID,
         session: AsyncSession = Depends(get_async_session),
@@ -82,7 +87,7 @@ async def create_submenu_item(
     return result
 
 
-@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=schemas.SubMenuRead)
 async def get_submenu(
     menu_id: UUID,
     submenu_id: UUID,
@@ -139,7 +144,7 @@ async def create_dish(
         dish=dish,
         session=session,
     )
-    return result
+    return price_converter(result)
 
 
 @router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}")
@@ -154,14 +159,13 @@ async def get_dish(
     )
     if not result:
         raise HTTPException(status_code=404, detail="dish not found")
-    return result
+    return price_converter(result)
 
 
 @router.patch(
-    "/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}",
-    response_model=schemas.DishBase,
+    "/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}"
 )
-async def update_submenu(
+async def update_dish(
     menu_id: UUID,
     submenu_id: UUID,
     dish_id: UUID,
@@ -171,7 +175,7 @@ async def update_submenu(
     result = await crud.update_dish_item(
         dish_id=dish_id, dish=dish, session=session,
     )
-    return result
+    return price_converter(result)
 
 
 @router.delete("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}")
