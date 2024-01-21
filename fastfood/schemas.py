@@ -1,5 +1,4 @@
-from decimal import Decimal
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -20,6 +19,7 @@ class Menu(MenuBase):
 class MenuRead(Menu):
     submenus_count: int
     dishes_count: int
+
 
 class SubMenuRead(Menu):
     dishes_count: int
