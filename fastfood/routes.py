@@ -53,3 +53,58 @@ async def update_menu(
 @router.delete("/api/v1/menus/{menu_id}")
 async def delete_menu(menu_id: UUID, session: AsyncSession = Depends(get_async_session)):
     await crud.delete_menu_item(menu_id=menu_id, session=session)
+
+
+@router.get("/api/v1/menus/{menu_id}/submenus")
+async def get_submenus(
+    menu_id: UUID,
+    session: AsyncSession = Depends(get_async_session)
+):
+    result = await crud.get_submenus(menu_id=menu_id, session=session)
+    return result
+
+
+@router.post("/api/v1/menus/{menu_id}/submenus", status_code=201)
+async def create_submenu_item(
+    menu_id: UUID,
+    submenu: schemas.SubmenuBase,
+    session: AsyncSession = Depends(get_async_session),
+):
+    result = await crud.create_submenu_item(
+        menu_id=menu_id,
+        submenu=submenu,
+        session=session,
+    )
+    return result
+
+
+@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+async def get_submenu(
+    menu_id: UUID,
+    submenu_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
+):
+    result = await crud.get_submenu_item(
+        menu_id=menu_id, submenu_id=submenu_id, session=session,
+    )
+    if not result:
+            raise HTTPException(status_code=404, detail="submenu not found")
+    return result
+
+
+@router.patch("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=schemas.MenuBase)
+async def update_submenu(
+    menu_id: UUID,
+    submenu_id: UUID,
+    submenu: schemas.MenuBase,
+    session: AsyncSession = Depends(get_async_session),
+):
+    result = await crud.update_submenu_item(
+        submenu_id=submenu_id, submenu=submenu, session=session,
+    )
+    return result
+
+
+@router.delete("/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+async def delete_menu(menu_id: UUID, submenu_id: UUID, session: AsyncSession = Depends(get_async_session)):
+    await crud.delete_submenu_item(submenu_id=submenu_id, session=session)

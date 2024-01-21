@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     DB_USER: str = "postrges"
     DB_PASS: str = "postgres"
-    DB_NAME: str = "demo_db"
+    DB_NAME: str = "postgres"
 
     @property
     def DATABASE_URL_asyncpg(self):

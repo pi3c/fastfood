@@ -27,7 +27,7 @@ class Menu(Base):
     id: Mapped[uuidpk]
     title: Mapped[str_25]
     description: Mapped[Optional[str]]
-    submenus: Mapped[List["SubMenu"]] = relationship()
+    submenus: Mapped[List["SubMenu"]] = relationship("SubMenu", backref="menu", lazy='dynamic')
 
 
 class SubMenu(Base):
@@ -36,7 +36,7 @@ class SubMenu(Base):
     id: Mapped[uuidpk]
     title: Mapped[str_25]
     description: Mapped[Optional[str]]
-    parent_menu: Mapped[UUID] = mapped_column(ForeignKey("menu.id"))
+    parent_menu: Mapped[uuid.UUID] = mapped_column(ForeignKey("menu.id"))
     dishes: Mapped[List["Dish"]] = relationship()
 
 

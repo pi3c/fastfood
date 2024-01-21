@@ -21,3 +21,9 @@ class Menu(MenuBase):
 
     class Config:
         from_attributes = True
+        
+
+class SubmenuBase(MenuBase):
+    pass
+
+
