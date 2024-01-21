@@ -18,33 +18,30 @@ str_25 = Annotated[str, 25]
 
 
 class Base(DeclarativeBase):
-    pass
+    id: Mapped[uuidpk]
+    title: Mapped[str_25]
+    description: Mapped[Optional[str]]
 
 
 class Menu(Base):
     __tablename__ = "menu"
 
-    id: Mapped[uuidpk]
-    title: Mapped[str_25]
-    description: Mapped[Optional[str]]
-    submenus: Mapped[List["SubMenu"]] = relationship("SubMenu", backref="menu", lazy='dynamic')
+    submenus: Mapped[List["SubMenu"]] = relationship(
+        "SubMenu", backref="menu", lazy='dynamic', cascade="all,delete",
+    )
 
 
 class SubMenu(Base):
     __tablename__ = "submenu"
 
-    id: Mapped[uuidpk]
-    title: Mapped[str_25]
-    description: Mapped[Optional[str]]
     parent_menu: Mapped[uuid.UUID] = mapped_column(ForeignKey("menu.id"))
-    dishes: Mapped[List["Dish"]] = relationship()
+    dishes: Mapped[List["Dish"]] = relationship(
+        "Dish", backref="submenu", lazy="dynamic", cascade="all,delete",
+    )
 
 
 class Dish(Base):
     __tablename__ = "dish"
 
-    id: Mapped[uuidpk]
-    title: Mapped[str_25]
-    description: Mapped[Optional[str]]
-    price: Mapped[Decimal]
-    parent_submenu: Mapped[UUID] = mapped_column(ForeignKey("submenu.id"))
+    price: Mapped[float]
+    parent_submenu: Mapped[uuid.UUID] = mapped_column(ForeignKey("submenu.id"))
