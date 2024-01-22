@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 
+from fastfood.routers.dish import router as dish_router
 from fastfood.routers.menu import router as menu_router
 from fastfood.routers.submenu import router as submenu_router
-from fastfood.routers.dish import router as dish_router
-
 
 description = """
 # 🔥🔥🔥Fastfood-API поможет тебе подкрепиться 🔥🔥🔥
@@ -58,10 +57,7 @@ tags_metadata = [
         "name": "submenu",
         "description": "Подменю и работа с ним",
     },
-    {
-        "name": "dish",
-        "description": "Блюда и работа с ними"
-    },
+    {"name": "dish", "description": "Блюда и работа с ними"},
 ]
 
 

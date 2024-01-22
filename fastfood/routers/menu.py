@@ -1,12 +1,12 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import schemas
 from fastfood.cruds import crud
 from fastfood.dbase import get_async_session
-
 
 router = APIRouter(
     prefix="/api/v1/menus",
@@ -34,8 +34,8 @@ async def add_menu(
 
 @router.get("/{menu_id}", response_model=schemas.MenuRead)
 async def get_menu(
-        menu_id: UUID,
-        session: AsyncSession = Depends(get_async_session),
+    menu_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
 ):
     result = await crud.get_menu_item(menu_id=menu_id, session=session)
     if not result:
@@ -50,15 +50,16 @@ async def update_menu(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await crud.update_menu_item(
-        menu_id=menu_id, menu=menu, session=session,
+        menu_id=menu_id,
+        menu=menu,
+        session=session,
     )
     return result
 
 
 @router.delete("/{menu_id}")
 async def delete_menu(
-        menu_id: UUID, session: AsyncSession = Depends(get_async_session),
+    menu_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
 ):
     await crud.delete_menu_item(menu_id=menu_id, session=session)
-
-

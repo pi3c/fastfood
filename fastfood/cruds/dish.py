@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +16,9 @@ class DishCrud:
 
     @staticmethod
     async def create_dish_item(
-        submenu_id: UUID, dish: schemas.DishBase, session: AsyncSession,
+        submenu_id: UUID,
+        dish: schemas.DishBase,
+        session: AsyncSession,
     ):
         async with session:
             new_dish = models.Dish(**dish.model_dump())
@@ -27,7 +30,8 @@ class DishCrud:
 
     @staticmethod
     async def get_dish_item(
-        dish_id: UUID, session: AsyncSession,
+        dish_id: UUID,
+        session: AsyncSession,
     ):
         async with session:
             query = select(models.Dish).where(models.Dish.id == dish_id)
@@ -41,7 +45,11 @@ class DishCrud:
         session: AsyncSession,
     ):
         async with session:
-            query = update(models.Dish).where(models.Dish.id == dish_id).values(**dish.model_dump())
+            query = (
+                update(models.Dish)
+                .where(models.Dish.id == dish_id)
+                .values(**dish.model_dump())
+            )
             await session.execute(query)
             await session.commit()
             qr = select(models.Dish).where(models.Dish.id == dish_id)
@@ -54,5 +62,3 @@ class DishCrud:
             query = delete(models.Dish).where(models.Dish.id == dish_id)
             await session.execute(query)
             await session.commit()
-
-

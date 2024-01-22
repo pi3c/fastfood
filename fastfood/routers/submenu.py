@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import schemas
 from fastfood.cruds import crud
 from fastfood.dbase import get_async_session
-
 
 router = APIRouter(
     prefix="/api/v1/menus/{menu_id}/submenus",
@@ -15,8 +15,7 @@ router = APIRouter(
 
 @router.get("/")
 async def get_submenus(
-    menu_id: UUID,
-    session: AsyncSession = Depends(get_async_session)
+    menu_id: UUID, session: AsyncSession = Depends(get_async_session)
 ):
     result = await crud.get_submenus(menu_id=menu_id, session=session)
     return result
@@ -43,7 +42,9 @@ async def get_submenu(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await crud.get_submenu_item(
-        menu_id=menu_id, submenu_id=submenu_id, session=session,
+        menu_id=menu_id,
+        submenu_id=submenu_id,
+        session=session,
     )
     if not result:
         raise HTTPException(status_code=404, detail="submenu not found")
@@ -61,13 +62,15 @@ async def update_submenu(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await crud.update_submenu_item(
-        submenu_id=submenu_id, submenu=submenu, session=session,
+        submenu_id=submenu_id,
+        submenu=submenu,
+        session=session,
     )
     return result
 
 
 @router.delete("/{submenu_id}")
-async def delete_submenu(menu_id: UUID, submenu_id: UUID, session: AsyncSession = Depends(get_async_session)):
+async def delete_submenu(
+    menu_id: UUID, submenu_id: UUID, session: AsyncSession = Depends(get_async_session)
+):
     await crud.delete_submenu_item(submenu_id=submenu_id, session=session)
-
-

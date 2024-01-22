@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +16,9 @@ class SubMenuCrud:
 
     @staticmethod
     async def create_submenu_item(
-        menu_id: UUID, submenu: schemas.MenuBase, session: AsyncSession,
+        menu_id: UUID,
+        submenu: schemas.MenuBase,
+        session: AsyncSession,
     ):
         async with session:
             new_submenu = models.SubMenu(**submenu.model_dump())
@@ -27,7 +30,9 @@ class SubMenuCrud:
 
     @staticmethod
     async def get_submenu_item(
-        menu_id: UUID, submenu_id: UUID, session: AsyncSession,
+        menu_id: UUID,
+        submenu_id: UUID,
+        session: AsyncSession,
     ):
         async with session:
             query = select(models.SubMenu).where(models.SubMenu.id == submenu_id)
@@ -53,7 +58,11 @@ class SubMenuCrud:
         session: AsyncSession,
     ):
         async with session:
-            query = update(models.SubMenu).where(models.SubMenu.id == submenu_id).values(**submenu.model_dump())
+            query = (
+                update(models.SubMenu)
+                .where(models.SubMenu.id == submenu_id)
+                .values(**submenu.model_dump())
+            )
             await session.execute(query)
             await session.commit()
             qr = select(models.SubMenu).where(models.SubMenu.id == submenu_id)

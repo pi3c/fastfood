@@ -1,13 +1,9 @@
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
 from fastfood.config import settings
-
 
 async_engine = create_async_engine(settings.DATABASE_URL_asyncpg)
 async_session_maker = async_sessionmaker(

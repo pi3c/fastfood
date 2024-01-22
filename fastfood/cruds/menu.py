@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +31,9 @@ class MenuCrud:
             menu = menu.scalars().one_or_none()
             if menu is None:
                 return None
-            submenu_query = select(func.count(models.SubMenu.id).label("counter")).filter(models.SubMenu.parent_menu == menu_id)
+            submenu_query = select(
+                func.count(models.SubMenu.id).label("counter")
+            ).filter(models.SubMenu.parent_menu == menu_id)
             counter = await session.execute(submenu_query)
 
             dish_query = (
@@ -45,12 +48,17 @@ class MenuCrud:
             return menu
 
     @staticmethod
-    async def update_menu_item(menu_id: UUID,
-                               menu: schemas.MenuBase,
-                               session: AsyncSession,
-                               ):
+    async def update_menu_item(
+        menu_id: UUID,
+        menu: schemas.MenuBase,
+        session: AsyncSession,
+    ):
         async with session:
-            query = update(models.Menu).where(models.Menu.id == menu_id).values(**menu.model_dump())
+            query = (
+                update(models.Menu)
+                .where(models.Menu.id == menu_id)
+                .values(**menu.model_dump())
+            )
             await session.execute(query)
             await session.commit()
             qr = select(models.Menu).where(models.Menu.id == menu_id)
@@ -63,5 +71,3 @@ class MenuCrud:
             query = delete(models.Menu).where(models.Menu.id == menu_id)
             await session.execute(query)
             await session.commit()
-
-

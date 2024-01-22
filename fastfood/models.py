@@ -26,16 +26,24 @@ class Menu(Base):
     __tablename__ = "menu"
 
     submenus: Mapped[List["SubMenu"]] = relationship(
-        "SubMenu", backref="menu", lazy='dynamic', cascade="all, delete",
+        "SubMenu",
+        backref="menu",
+        lazy="dynamic",
+        cascade="all, delete",
     )
 
 
 class SubMenu(Base):
     __tablename__ = "submenu"
 
-    parent_menu: Mapped[uuid.UUID] = mapped_column(ForeignKey("menu.id", ondelete="CASCADE"))
+    parent_menu: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("menu.id", ondelete="CASCADE")
+    )
     dishes: Mapped[List["Dish"]] = relationship(
-        "Dish", backref="submenu", lazy="dynamic", cascade="all, delete",
+        "Dish",
+        backref="submenu",
+        lazy="dynamic",
+        cascade="all, delete",
     )
 
 
@@ -43,4 +51,6 @@ class Dish(Base):
     __tablename__ = "dish"
 
     price: Mapped[float]
-    parent_submenu: Mapped[uuid.UUID] = mapped_column(ForeignKey("submenu.id", ondelete="CASCADE"))
+    parent_submenu: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("submenu.id", ondelete="CASCADE")
+    )
