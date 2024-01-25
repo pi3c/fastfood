@@ -18,6 +18,17 @@ class Settings(BaseSettings):
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
 
+    @property
+    def TESTDATABASE_URL_asyncpg(self):
+        """
+        Возвращает строку подключения к БД необходимую для SQLAlchemy
+        """
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}_test"
+        )
+
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
