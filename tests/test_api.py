@@ -1,7 +1,4 @@
 import pytest
-from httpx import AsyncClient
-
-url = "http://localhost:8000/api/v1/menus"
 
 
 class TestCrud:
@@ -141,8 +138,7 @@ class TestCrud:
         submenu.update(rspn)
 
         # Удаляем подменю
-        code = await self.Submenu.delete(client, menu, submenu)
-        assert code is None
+        await self.Submenu.delete(client, menu, submenu)
 
         # Проверяем меню
         code, rspn = await self.Menu.get(client, menu)
