@@ -1,13 +1,19 @@
 import asyncio
 from typing import AsyncGenerator
+from httpx import AsyncClient
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from fastfood.app import create_app
 
 from fastfood.config import settings
 from fastfood.dbase import get_async_session
 from fastfood.models import Base
+
 
 async_engine = create_async_engine(settings.TESTDATABASE_URL_asyncpg)
 async_session_maker = async_sessionmaker(
@@ -29,9 +35,7 @@ async def db_init():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-
     yield
-
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
