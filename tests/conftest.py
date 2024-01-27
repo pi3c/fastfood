@@ -50,3 +50,11 @@ def app():
     app = create_app()
     app.dependency_overrides[get_async_session] = get_test_session
     yield app
+
+
+@pytest_asyncio.fixture(scope="session")
+async def client(app):
+    async with AsyncClient(
+        app=app, base_url="http://localhost:8000/api/v1/menus",
+    ) as async_client:
+        yield async_client
