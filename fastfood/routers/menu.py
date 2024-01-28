@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get("/", response_model=Optional[List[schemas.Menu]])
 async def get_menus(session: AsyncSession = Depends(get_async_session)):
     result = await crud.get_menus(session=session)
-    return result
+    return result.scalars().all()
 
 
 @router.post("/", status_code=201, response_model=schemas.Menu)
@@ -54,7 +54,7 @@ async def update_menu(
         menu=menu,
         session=session,
     )
-    return result
+    return result.scalars().one()
 
 
 @router.delete("/{menu_id}")

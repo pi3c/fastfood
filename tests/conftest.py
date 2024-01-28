@@ -39,7 +39,7 @@ async def db_init():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
-
+        
 async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
@@ -58,3 +58,9 @@ async def client(app):
         app=app, base_url="http://localhost:8000/api/v1/menus",
     ) as async_client:
         yield async_client
+
+
+@pytest_asyncio.fixture(scope="session")
+async def asession() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        yield session

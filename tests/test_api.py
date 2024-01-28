@@ -87,7 +87,8 @@ class TestBaseCrud:
         async def get(ac, menu, submenu, dish):
             """Получение блюда по id"""
             response = await ac.get(
-                f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/{dish.get('id')}",
+                f"/{menu.get('id')}/submenus/{submenu.get('id')}"
+                f"/dishes/{dish.get('id')}",
             )
             return response.status_code, response.json()
 
@@ -104,7 +105,8 @@ class TestBaseCrud:
         async def update(ac, menu, submenu, dish):
             """Обновление блюда по id"""
             response = await ac.patch(
-                f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/{dish.get('id')}",
+                f"/{menu.get('id')}/submenus/{submenu.get('id')}"
+                f"/dishes/{dish.get('id')}",
                 json=dish,
             )
             return response.status_code, response.json()
@@ -113,7 +115,8 @@ class TestBaseCrud:
         async def delete(ac, menu, submenu, dish):
             """Удаление блюда по id"""
             response = await ac.delete(
-                f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/{dish.get('id')}"
+                f"/{menu.get('id')}/submenus/{submenu.get('id')}"
+                f"/dishes/{dish.get('id')}"
             )
             return response.status_code
 
@@ -369,7 +372,7 @@ class TestСontinuity:
         assert rspn["submenus_count"] == 0
         assert "dishes_count" in rspn.keys()
         assert rspn["dishes_count"] == 0
-        
+
         # Удаляем меню
         code = await TestBaseCrud.Menu.delete(client, menu)
         assert code == 200
