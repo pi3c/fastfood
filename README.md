@@ -4,7 +4,7 @@ Fastapi веб приложение реализующее api для общеп
 ## Оглавление
 
 - <a href="#description">Описание</a>
-- <a href="#install">Установка</a>
+- <a href="https://git.pi3c.ru/pi3c/fastfood#зависимости">Зависимости</a>
 
 <a name="description"></a>
 ## Описание
