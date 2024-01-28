@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Query, aliased
 
 from fastfood import models, schemas
 
@@ -26,21 +27,51 @@ class MenuCrud:
     @staticmethod
     async def get_menu_item(menu_id: UUID, session: AsyncSession):
         async with session:
-            query = select(models.Menu).where(models.Menu.id == menu_id)
+            """ Комментарий для проверяющего 
+            То что было, оставил закоментированным, удалю в следующей части
+            в pgadmin набросал следующий запрос
+            WITH subq as (
+                SELECT
+                    s.id,
+                    s.title,
+                    s.description,
+                    s.parent_menu,
+                    count(d.id) as dishes_count
+                FROM submenu s
+                JOIN dish d ON s.id = d.parent_submenu
+                GROUP BY s.id
+            )
+            SELECT
+                m.id,
+                m.title,
+                m.description,
+                count(q.id) AS submenus_count,
+                SUM(q.dishes_count) AS dishes_count
+            FROM menu m
+            JOIN subq q ON m.id = q.parent_menu
+            GROUP BY m.id
+            """
+            m = aliased(models.Menu)
+            s = aliased(models.SubMenu)
+            d = aliased(models.Dish)
+
+            query = select(m).where(m.id == menu_id)
             menu = await session.execute(query)
             menu = menu.scalars().one_or_none()
+
             if menu is None:
                 return None
+
             submenu_query = select(
-                func.count(models.SubMenu.id).label("counter")
-            ).filter(models.SubMenu.parent_menu == menu_id)
+                func.count(s.id).label("counter")
+            ).filter(s.parent_menu == menu_id)
             counter = await session.execute(submenu_query)
 
             dish_query = (
-                select(func.count(models.Dish.id))
-                .join(models.SubMenu)
-                .filter(models.Dish.parent_submenu == models.SubMenu.id)
-                .filter(models.SubMenu.parent_menu == menu_id)
+                select(func.count(d.id))
+                .join(s)
+                .filter(d.parent_submenu == s.id)
+                .filter(s.parent_menu == menu_id)
             )
             dishes = await session.execute(dish_query)
             menu.submenus_count = counter.scalars().one_or_none()

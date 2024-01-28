@@ -12,8 +12,11 @@ def run_app():
     """
     uvicorn.run(
         app="fastfood.app:create_app",
+        host="0.0.0.0",
+        port=8000,
         reload=True,
         factory=True,
+        workers=1,
     )
 
 

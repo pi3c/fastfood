@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     DB_PASS: str = "postgres"
     DB_NAME: str = "postgres"
 
+    POSTGRES_DB: str = "fastfod_db"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_USER: str = "postgres"
+
     @property
     def DATABASE_URL_asyncpg(self):
         """
