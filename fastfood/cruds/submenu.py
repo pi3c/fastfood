@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, distinct, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from fastfood import models, schemas
 
@@ -12,7 +13,7 @@ class SubMenuCrud:
         async with session:
             query = select(models.SubMenu).where(models.SubMenu.parent_menu == menu_id)
             submenus = await session.execute(query)
-            return submenus.scalars().all()
+        return submenus
 
     @staticmethod
     async def create_submenu_item(
@@ -35,21 +36,19 @@ class SubMenuCrud:
         session: AsyncSession,
     ):
         async with session:
-            query = select(models.SubMenu).where(models.SubMenu.id == submenu_id)
+            s = aliased(models.SubMenu)
+            d = aliased(models.Dish)
+            query = (
+                select(s, func.count(distinct(d.id)))
+                .join(d, s.id == d.parent_submenu, isouter=True)
+                .group_by(s.id)
+                .where(s.id == submenu_id)
+            )
             submenu = await session.execute(query)
             submenu = submenu.scalars().one_or_none()
             if submenu is None:
                 return None
-
-            dish_query = (
-                select(func.count(models.Dish.id))
-                .join(models.SubMenu)
-                .filter(models.Dish.parent_submenu == models.SubMenu.id)
-            )
-            dishes = await session.execute(dish_query)
-            submenu.dishes_count = dishes.scalars().one_or_none()
-
-            return submenu
+        return submenu
 
     @staticmethod
     async def update_submenu_item(
@@ -67,7 +66,7 @@ class SubMenuCrud:
             await session.commit()
             qr = select(models.SubMenu).where(models.SubMenu.id == submenu_id)
             updated_submenu = await session.execute(qr)
-            return updated_submenu.scalars().one()
+        return updated_submenu
 
     @staticmethod
     async def delete_submenu_item(submenu_id: UUID, session: AsyncSession):

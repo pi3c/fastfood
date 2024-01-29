@@ -18,7 +18,7 @@ async def get_submenus(
     menu_id: UUID, session: AsyncSession = Depends(get_async_session)
 ):
     result = await crud.get_submenus(menu_id=menu_id, session=session)
-    return result
+    return result.scalars().all()
 
 
 @router.post("/", status_code=201)
@@ -66,7 +66,7 @@ async def update_submenu(
         submenu=submenu,
         session=session,
     )
-    return result
+    return result.scalars().one()
 
 
 @router.delete("/{submenu_id}")

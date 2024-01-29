@@ -38,6 +38,7 @@ async def get_menu(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await crud.get_menu_item(menu_id=menu_id, session=session)
+
     if not result:
         raise HTTPException(status_code=404, detail="menu not found")
     return result

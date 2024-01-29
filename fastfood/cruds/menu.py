@@ -35,7 +35,7 @@ class MenuCrud:
                 select(
                     m,
                     func.count(distinct(s.id)).label("submenus_count"),
-                    func.count(distinct(d.id)).label("dishes_count")
+                    func.count(distinct(d.id)).label("dishes_count"),
                 )
                 .join(s, s.parent_menu == m.id, isouter=True)
                 .join(d, d.parent_submenu == s.id, isouter=True)
@@ -46,7 +46,7 @@ class MenuCrud:
             menu = menu.scalars().one_or_none()
             if menu is None:
                 return None
-            return menu
+        return menu
 
     @staticmethod
     async def update_menu_item(

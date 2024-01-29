@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastfood.cruds.submenu import SubMenuCrud
-from fastfood.models import Menu, SubMenu, Dish
-from fastfood.cruds.menu import MenuCrud
-from fastfood.schemas import Menu as menuschema
-from fastfood.schemas import SubMenuRead as submenuschema
-from fastfood.schemas import MenuBase as menubaseschema
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastfood.cruds.menu import MenuCrud
+from fastfood.cruds.submenu import SubMenuCrud
+from fastfood.models import Dish, Menu, SubMenu
+from fastfood.schemas import Menu as menuschema
+from fastfood.schemas import MenuBase as menubaseschema
 
 
 @pytest.mark.asyncio
@@ -24,7 +24,7 @@ async def test_menu(asession: AsyncSession) -> None:
         assert menu == req_menu
 
         req_menus = await MenuCrud.get_menus(asession)
-        # assert menu == req_menus.first()
+        assert menu == req_menus.scalars().one()
 
         menu.title = "updatedMenu"
         await MenuCrud.update_menu_item(
@@ -48,8 +48,12 @@ async def test_submenu(asession: AsyncSession) -> None:
         await asession.refresh(menu)
         menu_id: UUID = menu.id
         submenu: SubMenu = SubMenu(
-            title="submenu", description="", parent_menu=menu_id,
+            title="submenu",
+            description="",
+            parent_menu=menu_id,
         )
         submenu = await SubMenuCrud.create_submenu_item(
-            menu_id, menubaseschema.model_validate(submenu), asession,
+            menu_id,
+            menubaseschema.model_validate(submenu),
+            asession,
         )

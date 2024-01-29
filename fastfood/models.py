@@ -26,9 +26,9 @@ class Base(DeclarativeBase):
     def __eq__(self, other):
         classes_match = isinstance(other, self.__class__)
         a, b = deepcopy(self.__dict__), deepcopy(other.__dict__)
-        a.pop('_sa_instance_state', None)
-        b.pop('_sa_instance_state', None)
-        attrs_match = (a == b)
+        a.pop("_sa_instance_state", None)
+        b.pop("_sa_instance_state", None)
+        attrs_match = a == b
         return classes_match and attrs_match
 
     def __ne__(self, other):
