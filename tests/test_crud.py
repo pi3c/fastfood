@@ -14,17 +14,19 @@ from fastfood.schemas import MenuBase as menubaseschema
 async def test_menu(asession: AsyncSession) -> None:
     async with asession:
         menu: Menu = Menu(title="SomeMenu", description="SomeDescription")
-        asession.add(menu)
 
-        await asession.commit()
-        await asession.refresh(menu)
+        menu: Menu = await MenuCrud.create_menu_item(
+            menubaseschema.model_validate(menu),
+            asession,
+        )
+
         menu_id: UUID = menu.id
 
         req_menu: Menu | None = await MenuCrud.get_menu_item(menu_id, asession)
         assert menu == req_menu
 
         req_menus = await MenuCrud.get_menus(asession)
-        assert menu == req_menus.scalars().one()
+        assert menu == req_menus.scalars().all()[0]
 
         menu.title = "updatedMenu"
         await MenuCrud.update_menu_item(
@@ -41,12 +43,14 @@ async def test_menu(asession: AsyncSession) -> None:
 @pytest.mark.asyncio
 async def test_submenu(asession: AsyncSession) -> None:
     async with asession:
+        # Создаем меню напрямую
         menu: Menu = Menu(title="SomeMenu", description="SomeDescription")
         asession.add(menu)
-
         await asession.commit()
         await asession.refresh(menu)
         menu_id: UUID = menu.id
+
+        # Создаем подменю через ручку
         submenu: SubMenu = SubMenu(
             title="submenu",
             description="",
@@ -57,3 +61,9 @@ async def test_submenu(asession: AsyncSession) -> None:
             menubaseschema.model_validate(submenu),
             asession,
         )
+
+
+@pytest.mark.asyncio
+async def test_dish(asession: AsyncSession):
+    async with asession:
+        pass
