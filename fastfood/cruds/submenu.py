@@ -11,7 +11,9 @@ class SubMenuCrud:
     @staticmethod
     async def get_submenus(menu_id: UUID, session: AsyncSession):
         async with session:
-            query = select(models.SubMenu).where(models.SubMenu.parent_menu == menu_id)
+            query = select(models.SubMenu).where(
+                models.SubMenu.parent_menu == menu_id,
+            )
             submenus = await session.execute(query)
         return submenus
 
@@ -25,8 +27,8 @@ class SubMenuCrud:
             new_submenu = models.SubMenu(**submenu.model_dump())
             new_submenu.parent_menu = menu_id
             session.add(new_submenu)
-            await session.flush()
             await session.commit()
+            await session.refresh(new_submenu)
         return new_submenu
 
     @staticmethod
@@ -71,6 +73,8 @@ class SubMenuCrud:
     @staticmethod
     async def delete_submenu_item(submenu_id: UUID, session: AsyncSession):
         async with session:
-            query = delete(models.SubMenu).where(models.SubMenu.id == submenu_id)
+            query = delete(models.SubMenu).where(
+                models.SubMenu.id == submenu_id,
+            )
             await session.execute(query)
             await session.commit()

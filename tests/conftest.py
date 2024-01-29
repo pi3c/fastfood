@@ -42,7 +42,7 @@ async def db_init():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
-        
+
 async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
