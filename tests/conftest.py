@@ -55,7 +55,7 @@ def app():
     yield app
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="function")
 async def client(app):
     async with AsyncClient(
         app=app, base_url="http://localhost:8000/api/v1/menus",
@@ -63,7 +63,7 @@ async def client(app):
         yield async_client
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="function")
 async def asession() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
