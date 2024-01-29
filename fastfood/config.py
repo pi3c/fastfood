@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DB_HOST: str = "localhost"
+    DB_HOST: str = "db"
     DB_PORT: int = 5432
     POSTGRES_DB: str = "fastfod_db"
     POSTGRES_PASSWORD: str = "postgres"

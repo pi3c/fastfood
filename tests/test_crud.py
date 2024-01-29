@@ -53,4 +53,3 @@ async def test_submenu(asession: AsyncSession) -> None:
         submenu = await SubMenuCrud.create_submenu_item(
             menu_id, menubaseschema.model_validate(submenu), asession,
         )
-        print(submenu)

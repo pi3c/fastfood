@@ -26,7 +26,7 @@ class SubMenuCrud:
             session.add(new_submenu)
             await session.flush()
             await session.commit()
-            return new_submenu
+        return new_submenu
 
     @staticmethod
     async def get_submenu_item(
