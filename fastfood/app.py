@@ -61,7 +61,7 @@ tags_metadata = [
 ]
 
 
-def create_app():
+def create_app() -> FastAPI:
     """
     Фабрика FastAPI.
     """

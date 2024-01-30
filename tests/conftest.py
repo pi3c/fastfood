@@ -1,19 +1,17 @@
 import asyncio
-from typing import AsyncGenerator
-from httpx import AsyncClient
+from typing import AsyncGenerator, Generator
+
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-from fastfood.app import create_app
+from fastapi import FastAPI
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
+from fastfood.app import create_app
 from fastfood.config import settings
 from fastfood.dbase import get_async_session
 from fastfood.models import Base
-
 
 async_engine = create_async_engine(settings.TESTDATABASE_URL_asyncpg)
 async_session_maker = async_sessionmaker(
@@ -49,16 +47,17 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(scope="session")
-def app():
-    app = create_app()
+def app() -> Generator[FastAPI, None, None]:
+    app: FastAPI = create_app()
     app.dependency_overrides[get_async_session] = get_test_session
     yield app
 
 
 @pytest_asyncio.fixture(scope="function")
-async def client(app):
+async def client(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
-        app=app, base_url="http://localhost:8000/api/v1/menus",
+        app=app,
+        base_url="http://localhost:8000/api/v1/menus",
     ) as async_client:
         yield async_client
 
