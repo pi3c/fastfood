@@ -2,12 +2,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DB_HOST: str = "db"
+    DB_HOST: str = ""
     DB_PORT: int = 5432
-    POSTGRES_DB: str = "fastfood_db"
-    POSTGRES_PASSWORD: str = "test"
-    POSTGRES_USER: str = "testuser"
-    POSTGRES_DB_TEST: str = "fastfood_db_test"
+    POSTGRES_DB: str = ""
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_USER: str = ""
+    POSTGRES_DB_TEST: str = ""
 
     @property
     def DATABASE_URL_asyncpg(self):
