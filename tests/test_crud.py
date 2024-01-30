@@ -48,7 +48,7 @@ async def test_menu(asession: AsyncSession) -> None:
 async def test_submenu(asession: AsyncSession) -> None:
     async with asession:
         # Создаем меню напрямую
-        menu: Menu = Menu(title="SomeMenu", description="SomeDescription")
+        menu = Menu(title="SomeMenu", description="SomeDescription")
         asession.add(menu)
         await asession.commit()
         await asession.refresh(menu)
@@ -69,14 +69,18 @@ async def test_submenu(asession: AsyncSession) -> None:
 
         # Проверяем подменю
         req_submenu = await SubMenuCrud.get_submenu_item(
-            menu_id, submenu.id, asession,
+            menu_id,
+            submenu.id,
+            asession,
         )
         assert submenu == req_submenu
 
         # Обновляем меню
         submenu.title = "UpdatedSubmenu"
         req_submenu = await SubMenuCrud.update_submenu_item(
-            submenu_id, menubaseschema.model_validate(submenu), asession,
+            submenu_id,
+            menubaseschema.model_validate(submenu),
+            asession,
         )
         assert submenu == req_submenu.scalar_one_or_none()
 

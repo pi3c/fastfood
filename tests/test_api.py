@@ -47,7 +47,11 @@ class TestBaseCrud:
             return response.status_code, response.json()
 
         @staticmethod
-        async def get(ac: AsyncClient, menu: dict, submenu: dict) -> Tuple[int, dict]:
+        async def get(
+            ac: AsyncClient,
+            menu: dict,
+            submenu: dict,
+        ) -> Tuple[int, dict]:
             """Получение меню по id"""
             response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}",
@@ -55,7 +59,11 @@ class TestBaseCrud:
             return response.status_code, response.json()
 
         @staticmethod
-        async def write(ac: AsyncClient, menu: dict, submenu: dict) -> Tuple[int, dict]:
+        async def write(
+            ac: AsyncClient,
+            menu: dict,
+            submenu: dict,
+        ) -> Tuple[int, dict]:
             """создания меню"""
             response: Response = await ac.post(
                 f"/{menu.get('id')}/submenus/",

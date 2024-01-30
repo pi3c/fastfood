@@ -98,7 +98,11 @@ Fastapi веб приложение реализующее api для общеп
 где <db_name> и <db_user> соответвтовали POSTGRES_DB и POSTGRES_USER в файле `.env`
 
 Создайте и запустите образы
-> `$ docker-compose up -d --build`
+Запуск FAstAPI приложения
+> `$ docker-compose -f compose_app.yml up -d` 
+
+Запуск тестов
+> `$ docker-compose -f compose_test.yml up`
 
 После успешного запуска образов документация по API будет доступна по адресу <a href="http://localhost:8000/docs">http://localhost:8000</a> 
 

@@ -21,7 +21,7 @@ async_session_maker = async_sessionmaker(
 )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def event_loop():
     try:
         loop = asyncio.get_event_loop()
@@ -32,7 +32,7 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
-async def db_init():
+async def db_init(event_loop):
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -47,7 +47,7 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(scope="session")
-def app() -> Generator[FastAPI, None, None]:
+def app(event_loop) -> Generator[FastAPI, None, None]:
     app: FastAPI = create_app()
     app.dependency_overrides[get_async_session] = get_test_session
     yield app
@@ -63,6 +63,6 @@ async def client(app) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def asession() -> AsyncGenerator[AsyncSession, None]:
+async def asession(event_loop) -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
