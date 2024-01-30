@@ -1,110 +1,126 @@
+from typing import Tuple
+
 import pytest
+from httpx import AsyncClient, Response
 
 
 class TestBaseCrud:
     class Menu:
         @staticmethod
-        async def read_all(ac):
+        async def read_all(ac: AsyncClient) -> Tuple[int, dict]:
             """чтение всех меню"""
-            response = await ac.get("/")
+            response: Response = await ac.get("/")
             return response.status_code, response.json()
 
         @staticmethod
-        async def get(ac, data):
+        async def get(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
             """Получение меню по id"""
-            response = await ac.get(f"/{data.get('id')}")
+            response: Response = await ac.get(f"/{data.get('id')}")
             return response.status_code, response.json()
 
         @staticmethod
-        async def write(ac, data):
+        async def write(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
             """создания меню"""
-            response = await ac.post("/", json=data)
+            response: Response = await ac.post("/", json=data)
             return response.status_code, response.json()
 
         @staticmethod
-        async def update(ac, data):
+        async def update(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
             """Обновление меню по id"""
-            response = await ac.patch(f"/{data.get('id')}", json=data)
+            response: Response = await ac.patch(
+                f"/{data.get('id')}",
+                json=data,
+            )
             return response.status_code, response.json()
 
         @staticmethod
-        async def delete(ac, data):
+        async def delete(ac: AsyncClient, data: dict) -> int:
             """Удаление меню по id"""
-            response = await ac.delete(f"/{data.get('id')}")
+            response: Response = await ac.delete(f"/{data.get('id')}")
             return response.status_code
 
     class Submenu:
         @staticmethod
-        async def read_all(ac, menu):
+        async def read_all(ac: AsyncClient, menu: dict) -> Tuple[int, dict]:
             """чтение всех меню"""
-            response = await ac.get(f"/{menu.get('id')}/submenus/")
+            response: Response = await ac.get(f"/{menu.get('id')}/submenus/")
             return response.status_code, response.json()
 
         @staticmethod
-        async def get(ac, menu, submenu):
+        async def get(ac: AsyncClient, menu: dict, submenu: dict) -> Tuple[int, dict]:
             """Получение меню по id"""
-            response = await ac.get(
+            response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}",
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def write(ac, menu, submenu):
+        async def write(ac: AsyncClient, menu: dict, submenu: dict) -> Tuple[int, dict]:
             """создания меню"""
-            response = await ac.post(
+            response: Response = await ac.post(
                 f"/{menu.get('id')}/submenus/",
                 json=submenu,
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def update(ac, menu, submenu):
+        async def update(
+            ac: AsyncClient, menu: dict, submenu: dict
+        ) -> Tuple[int, dict]:
             """Обновление меню по id"""
-            response = await ac.patch(
+            response: Response = await ac.patch(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}",
                 json=submenu,
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def delete(ac, menu, submenu):
+        async def delete(ac: AsyncClient, menu: dict, submenu: dict) -> int:
             """Удаление меню по id"""
-            response = await ac.delete(
+            response: Response = await ac.delete(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"
             )
             return response.status_code
 
     class Dish:
         @staticmethod
-        async def read_all(ac, menu, submenu):
+        async def read_all(
+            ac: AsyncClient, menu: dict, submenu: dict
+        ) -> Tuple[int, dict]:
             """чтение всех блюд"""
-            response = await ac.get(
+            response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/",
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def get(ac, menu, submenu, dish):
+        async def get(
+            ac: AsyncClient, menu: dict, submenu: dict, dish: dict
+        ) -> Tuple[int, dict]:
             """Получение блюда по id"""
-            response = await ac.get(
+            response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"
                 f"/dishes/{dish.get('id')}",
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def write(ac, menu, submenu, dish):
+        async def write(
+            ac: AsyncClient, menu: dict, submenu: dict, dish: dict
+        ) -> Tuple[int, dict]:
             """создания блюда"""
-            response = await ac.post(
+            response: Response = await ac.post(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/",
                 json=dish,
             )
             return response.status_code, response.json()
 
         @staticmethod
-        async def update(ac, menu, submenu, dish):
+        async def update(
+            ac: AsyncClient, menu: dict, submenu: dict, dish: dict
+        ) -> Tuple[int, dict]:
             """Обновление блюда по id"""
-            response = await ac.patch(
+            response: Response = await ac.patch(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"
                 f"/dishes/{dish.get('id')}",
                 json=dish,
@@ -112,16 +128,16 @@ class TestBaseCrud:
             return response.status_code, response.json()
 
         @staticmethod
-        async def delete(ac, menu, submenu, dish):
+        async def delete(ac: AsyncClient, menu: dict, submenu: dict, dish: dict) -> int:
             """Удаление блюда по id"""
-            response = await ac.delete(
+            response: Response = await ac.delete(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"
                 f"/dishes/{dish.get('id')}"
             )
             return response.status_code
 
     @pytest.mark.asyncio
-    async def test_menu_crud(self, client):
+    async def test_menu_crud(self, client: AsyncClient) -> None:
         """Тестирование функций меню"""
         code, rspn = await self.Menu.read_all(client)
         assert code == 200
@@ -152,7 +168,7 @@ class TestBaseCrud:
         assert code == 404
 
     @pytest.mark.asyncio
-    async def test_submenus(self, client):
+    async def test_submenus(self, client) -> None:
         # Создаем меню и проверяем ответ
         menu = {"title": "Menu", "description": "main menu"}
         code, rspn = await self.Menu.write(client, menu)
@@ -203,7 +219,7 @@ class TestBaseCrud:
         await self.Menu.delete(client, menu)
 
     @pytest.mark.asyncio
-    async def test_dishes(self, client):
+    async def test_dishes(self, client: AsyncClient) -> None:
         # Создаем меню и проверяем ответ
         menu = {
             "title": "Menu",
