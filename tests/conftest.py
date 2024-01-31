@@ -1,12 +1,11 @@
 import asyncio
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator, Dict, Generator
 
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from fastfood.app import create_app
 from fastfood.config import settings
@@ -66,3 +65,8 @@ async def client(app) -> AsyncGenerator[AsyncClient, None]:
 async def asession(event_loop) -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
+
+
+@pytest.fixture(scope="session")
+def session_data() -> Dict:
+    return {}

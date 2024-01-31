@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Tuple
 
 import pytest
 from httpx import AsyncClient, Response
@@ -145,20 +145,35 @@ class TestBaseCrud:
             return response.status_code
 
     @pytest.mark.asyncio
-    async def test_menu_crud(self, client: AsyncClient) -> None:
+    async def test_menu_crud_empty(self, client: AsyncClient) -> None:
         """Тестирование функций меню"""
         code, rspn = await self.Menu.read_all(client)
         assert code == 200
+        assert rspn == []
 
+    @pytest.mark.asyncio
+    async def test_menu_crud_add(self, client: AsyncClient) -> None:
+        """Тестирование функций меню"""
         data = {"title": "Menu", "description": None}
         code, rspn = await self.Menu.write(client, data)
         assert code == 201
         assert rspn["title"] == "Menu"
         assert rspn["description"] is None
 
+    @pytest.mark.asyncio
+    async def test_menu_crud_get(self, client: AsyncClient) -> None:
+        """Тестирование функций меню"""
+        data = {"title": "Menu", "description": None}
+        code, rspn = await self.Menu.write(client, data)
         code, menu = await self.Menu.get(client, {"id": rspn.get("id")})
         assert code == 200
         assert menu["title"] == rspn["title"]
+
+    @pytest.mark.asyncio
+    async def test_menu_crud_update(self, client: AsyncClient) -> None:
+        """Тестирование функций меню"""
+        data = {"title": "Menu", "description": None}
+        code, rspn = await self.Menu.write(client, data)
 
         upd_data = {
             "id": rspn.get("id"),
@@ -169,18 +184,37 @@ class TestBaseCrud:
         assert code == 200
         assert upd_rspn["title"] == "upd Menu"
 
+    @pytest.mark.asyncio
+    async def test_menu_crud_delete(self, client: AsyncClient) -> None:
+        """Тестирование функций меню"""
+        data = {"title": "Menu", "description": None}
+        code, rspn = await self.Menu.write(client, data)
+
         code = await self.Menu.delete(client, rspn)
         assert code == 200
 
-        code, menu = await self.Menu.get(client, {"id": rspn.get("id")})
+        code, rspn = await self.Menu.get(client, {"id": rspn.get("id")})
         assert code == 404
 
     @pytest.mark.asyncio
-    async def test_submenus(self, client) -> None:
+    async def test_menu_crud_get_all(self, client: AsyncClient) -> None:
+        """Тестирование функций меню"""
+        code, rspn = await self.Menu.read_all(client)
+        assert code == 200
+        assert rspn == []
+
+        data = {"title": "Menu", "description": None}
+        code, rspn = await self.Menu.write(client, data)
+
+        code, upd_rspn = await self.Menu.read_all(client)
+        assert code == 200
+        assert upd_rspn == [rspn]
+
+    @pytest.mark.asyncio
+    async def test_submenus_get_all(self, client) -> None:
         # Создаем меню и проверяем ответ
         menu = {"title": "Menu", "description": "main menu"}
         code, rspn = await self.Menu.write(client, menu)
-        assert code == 201
         menu.update(rspn)
 
         # Проверяем наличие подменю
@@ -195,46 +229,22 @@ class TestBaseCrud:
             "parent_menu": menu["id"],
         }
         code, rspn = await self.Submenu.write(client, menu, submenu)
-        assert code == 201
         submenu.update(rspn)
 
-        # Проверяем меню на наличие подменю
-        code, rspn = await self.Menu.get(client, menu)
+        # Проверяем наличие подменю
+        code, upd_rspn = await self.Submenu.read_all(client, menu)
         assert code == 200
-        assert rspn["submenus_count"] == 1
-
-        # Обновляем подменю и проверяем
-        submenu["title"] = "updated_submenu"
-        code, rspn = await self.Submenu.update(client, menu, submenu)
-        assert code == 200
-        assert submenu["title"] == rspn["title"]
-        submenu.update(rspn)
-
-        # Удаляем подменю
-        code = await self.Submenu.delete(client, menu, submenu)
-        assert code == 200
-
-        # Проверяем меню
-        code, rspn = await self.Menu.get(client, menu)
-        assert code == 200
-        assert rspn["submenus_count"] == 0
-
-        # Проверяем удаленное подменю
-        code, rspn = await self.Submenu.get(client, menu, submenu)
-        assert code == 404
+        assert upd_rspn == [rspn]
 
         # удаляем сопутствующее
+        await self.Submenu.delete(client, menu, submenu)
         await self.Menu.delete(client, menu)
 
     @pytest.mark.asyncio
-    async def test_dishes(self, client: AsyncClient) -> None:
+    async def test_submenus_add(self, client) -> None:
         # Создаем меню и проверяем ответ
-        menu = {
-            "title": "Menu",
-            "description": "main menu",
-        }
+        menu = {"title": "Menu", "description": "main menu"}
         code, rspn = await self.Menu.write(client, menu)
-        assert code == 201
         menu.update(rspn)
 
         # Создаем и проверяем подменю
@@ -245,6 +255,83 @@ class TestBaseCrud:
         }
         code, rspn = await self.Submenu.write(client, menu, submenu)
         assert code == 201
+        submenu.update(rspn)
+
+        # удаляем сопутствующее
+        await self.Submenu.delete(client, menu, submenu)
+        await self.Menu.delete(client, menu)
+
+    @pytest.mark.asyncio
+    async def test_submenus_update(self, client) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {"title": "Menu", "description": "main menu"}
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
+        submenu.update(rspn)
+
+        # Обновляем подменю и проверяем
+        submenu["title"] = "updated_submenu"
+        code, rspn = await self.Submenu.update(client, menu, submenu)
+        assert code == 200
+        assert submenu["title"] == rspn["title"]
+        submenu.update(rspn)
+
+        # удаляем сопутствующее
+        await self.Submenu.delete(client, menu, submenu)
+        await self.Menu.delete(client, menu)
+
+    @pytest.mark.asyncio
+    async def test_submenus_delete(self, client) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {"title": "Menu", "description": "main menu"}
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
+        submenu.update(rspn)
+
+        # Удаляем подменю
+        code = await self.Submenu.delete(client, menu, submenu)
+        assert code == 200
+
+        # Проверяем удаленное подменю
+        code, rspn = await self.Submenu.get(client, menu, submenu)
+        assert code == 404
+
+        # удаляем сопутствующее
+        await self.Menu.delete(client, menu)
+
+    @pytest.mark.asyncio
+    async def test_dishes_get_all(self, client: AsyncClient) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {
+            "title": "Menu",
+            "description": "main menu",
+        }
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
         submenu.update(rspn)
 
         # Проверяем все блюда в подменю
@@ -263,20 +350,83 @@ class TestBaseCrud:
         assert code == 201
         dish.update(rspn)
 
+        code, upd_rspn = await self.Dish.read_all(client, menu, submenu)
+
+        assert code == 200
+
+        # удаляем сопутствующее
+        await self.Dish.delete(client, menu, submenu, dish)
+        await self.Submenu.delete(client, menu, submenu)
+        await self.Menu.delete(client, menu)
+
+    @pytest.mark.asyncio
+    async def test_dishes_add(self, client: AsyncClient) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {
+            "title": "Menu",
+            "description": "main menu",
+        }
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
+        submenu.update(rspn)
+
+        # Добавляем блюдо
+        dish = {
+            "title": "dish",
+            "description": "some dish",
+            "price": "12.5",
+            "parent_submenu": submenu["id"],
+        }
+        code, rspn = await self.Dish.write(client, menu, submenu, dish)
+        assert code == 201
+        dish.update(rspn)
+
         # Получаем блюдо
         code, rspn = await self.Dish.get(client, menu, submenu, dish)
         assert code == 200
         assert rspn["title"] == dish["title"]
 
-        # Проверяем меню на количество блюд
-        code, rspn = await self.Menu.get(client, menu)
-        assert code == 200
-        assert rspn["dishes_count"] == 1
+        # удаляем сопутствующее
+        await self.Dish.delete(client, menu, submenu, dish)
+        await self.Submenu.delete(client, menu, submenu)
+        await self.Menu.delete(client, menu)
 
-        # Проверяем подменю на наличие блюд
-        code, rspn = await self.Submenu.get(client, menu, submenu)
-        assert code == 200
-        assert rspn["dishes_count"] == 1
+    @pytest.mark.asyncio
+    async def test_dishes_update(self, client: AsyncClient) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {
+            "title": "Menu",
+            "description": "main menu",
+        }
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
+        submenu.update(rspn)
+
+        # Добавляем блюдо
+        dish = {
+            "title": "dish",
+            "description": "some dish",
+            "price": "12.5",
+            "parent_submenu": submenu["id"],
+        }
+        code, rspn = await self.Dish.write(client, menu, submenu, dish)
+        dish.update(rspn)
 
         # Обновляем блюдо и проверяем
         dish["title"] = "updated_dish"
@@ -285,19 +435,43 @@ class TestBaseCrud:
         assert dish["title"] == rspn["title"]
         dish.update(rspn)
 
+        # удаляем сопутствующее
+        await self.Dish.delete(client, menu, submenu, dish)
+        await self.Submenu.delete(client, menu, submenu)
+        await self.Menu.delete(client, menu)
+
+    @pytest.mark.asyncio
+    async def test_dishes_delete(self, client: AsyncClient) -> None:
+        # Создаем меню и проверяем ответ
+        menu = {
+            "title": "Menu",
+            "description": "main menu",
+        }
+        code, rspn = await self.Menu.write(client, menu)
+        menu.update(rspn)
+
+        # Создаем и проверяем подменю
+        submenu = {
+            "title": "Submenu",
+            "description": "submenu",
+            "parent_menu": menu["id"],
+        }
+        code, rspn = await self.Submenu.write(client, menu, submenu)
+        submenu.update(rspn)
+
+        # Добавляем блюдо
+        dish = {
+            "title": "dish",
+            "description": "some dish",
+            "price": "12.5",
+            "parent_submenu": submenu["id"],
+        }
+        code, rspn = await self.Dish.write(client, menu, submenu, dish)
+        dish.update(rspn)
+
         # Удаляем подменю
         code = await self.Dish.delete(client, menu, submenu, dish)
         assert code == 200
-
-        # Проверяем меню
-        code, rspn = await self.Menu.get(client, menu)
-        assert code == 200
-        assert rspn["dishes_count"] == 0
-
-        # Проверяем подменю на наличие блюд
-        code, rspn = await self.Submenu.get(client, menu, submenu)
-        assert code == 200
-        assert rspn["dishes_count"] == 0
 
         # Проверяем удаленное блюдо
         code, rspn = await self.Dish.get(client, menu, submenu, dish)
@@ -309,6 +483,28 @@ class TestBaseCrud:
 
 
 class TestСontinuity:
+    @pytest.mark.asyncio
+    async def test_01(self, client, session_data: Dict):
+        """Проверяет создание меню"""
+        data = {"title": "Menu", "description": "some"}
+        code, rspn = await TestBaseCrud.Menu.write(client, data)
+
+        assert code == 201
+        code, rspn = await TestBaseCrud.Menu.get(client, rspn)
+        session_data["target_menu_id"] = rspn.get("id")
+        session_data["target_menu_title"] = rspn.get("title")
+        session_data["target_menu_description"] = rspn.get("description")
+
+        assert code == 200
+        assert "id" in rspn
+        assert "title" in rspn
+        assert "description" in rspn
+        assert "submenus_count" in rspn
+        assert "dishes_count" in rspn
+
+        assert rspn["title"] == "Menu"
+        assert rspn.get("description") == "some"
+
     @pytest.mark.asyncio
     async def test_postman_continuity(self, client):
         # Создаем меню
