@@ -26,55 +26,45 @@ class MenuCrud:
         await self.db.refresh(new_menu)
         return new_menu
 
-    @staticmethod
-    async def get_menu_item(
-        menu_id: UUID, session: AsyncSession = Depends(get_async_session)
-    ):
-        async with session:
-            m = aliased(models.Menu)
-            s = aliased(models.SubMenu)
-            d = aliased(models.Dish)
+    async def get_menu_item(self, menu_id: UUID):
+        m = aliased(models.Menu)
+        s = aliased(models.SubMenu)
+        d = aliased(models.Dish)
 
-            query = (
-                select(
-                    m,
-                    func.count(distinct(s.id)).label("submenus_count"),
-                    func.count(distinct(d.id)).label("dishes_count"),
-                )
-                .join(s, s.parent_menu == m.id, isouter=True)
-                .join(d, d.parent_submenu == s.id, isouter=True)
-                .group_by(m.id)
-                .where(m.id == menu_id)
+        query = (
+            select(
+                m,
+                func.count(distinct(s.id)).label("submenus_count"),
+                func.count(distinct(d.id)).label("dishes_count"),
             )
-            menu = await session.execute(query)
-            menu = menu.scalars().one_or_none()
-            if menu is None:
-                return None
+            .join(s, s.parent_menu == m.id, isouter=True)
+            .join(d, d.parent_submenu == s.id, isouter=True)
+            .group_by(m.id)
+            .where(m.id == menu_id)
+        )
+        menu = await self.db.execute(query)
+        menu = menu.scalars().one_or_none()
+        if menu is None:
+            return None
         return menu
 
-    @staticmethod
     async def update_menu_item(
+        self,
         menu_id: UUID,
         menu: schemas.MenuBase,
-        session: AsyncSession = Depends(get_async_session),
     ):
-        async with session:
-            query = (
-                update(models.Menu)
-                .where(models.Menu.id == menu_id)
-                .values(**menu.model_dump())
-            )
-            await session.execute(query)
-            await session.commit()
-            qr = select(models.Menu).where(models.Menu.id == menu_id)
-            updated_menu = await session.execute(qr)
-            return updated_menu
+        query = (
+            update(models.Menu)
+            .where(models.Menu.id == menu_id)
+            .values(**menu.model_dump())
+        )
+        await self.db.execute(query)
+        await self.db.commit()
+        qr = select(models.Menu).where(models.Menu.id == menu_id)
+        updated_menu = await self.db.execute(qr)
+        return updated_menu
 
-    @staticmethod
-    async def delete_menu_item(
-        menu_id: UUID, session: AsyncSession = Depends(get_async_session)
-    ):
-        async with session:
-            query = delete(models.Menu).where(models.Menu.id == menu_id)
-            await session.execute(query)
-            await session.commit()
+    async def delete_menu_item(self, menu_id: UUID):
+        query = delete(models.Menu).where(models.Menu.id == menu_id)
+        await self.db.execute(query)
+        await self.db.commit()

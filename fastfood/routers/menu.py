@@ -20,8 +20,7 @@ async def get_menus(
     menu: MenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await menu.read_menus()
-    return result
+    return await menu.read_menus()
 
 
 @router.post("/", status_code=201, response_model=schemas.Menu)
@@ -30,16 +29,16 @@ async def add_menu(
     responce: MenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    rspn = await responce.create_menu(menu)
-    return rspn
+    return await responce.create_menu(menu)
 
 
 @router.get("/{menu_id}", response_model=schemas.MenuRead)
 async def get_menu(
     menu_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
+    responce: MenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.get_menu_item(menu_id=menu_id, session=session)
+    result = await responce.read_menu(menu_id=menu_id)
 
     if not result:
         raise HTTPException(status_code=404, detail="menu not found")
@@ -50,19 +49,20 @@ async def get_menu(
 async def update_menu(
     menu_id: UUID,
     menu: schemas.MenuBase,
-    session: AsyncSession = Depends(get_async_session),
+    responce: MenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.update_menu_item(
+    result = await responce.update_menu(
         menu_id=menu_id,
-        menu=menu,
-        session=session,
+        menu_data=menu,
     )
     return result.scalars().one()
 
 
-@router.delete("/{menu_id}")
-async def delete_menu(
-    menu_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
-):
-    await crud.delete_menu_item(menu_id=menu_id, session=session)
+#
+# @router.delete("/{menu_id}")
+# async def delete_menu(
+#     menu_id: UUID,
+#     session: AsyncSession = Depends(get_async_session),
+# ):
+#     await crud.delete_menu_item(menu_id=menu_id, session=session)

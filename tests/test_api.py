@@ -7,10 +7,10 @@ from httpx import AsyncClient, Response
 class TestBaseCrud:
     class Menu:
         @staticmethod
-        async def read_all(cli: AsyncClient) -> Tuple[int, dict]:
+        async def read_all(ac: AsyncClient) -> Tuple[int, dict]:
             """чтение всех меню"""
 
-            response: Response = await cli.get("/")
+            response: Response = await ac.get("/")
             return response.status_code, response.json()
 
         @staticmethod
@@ -149,32 +149,33 @@ class TestBaseCrud:
 @pytest.mark.asyncio
 async def test_menu_crud(client) -> None:
     """Тестирование функций меню"""
-    code, rspn = await TestBaseCrud.Menu.read_all(client)
+    code, menus = await TestBaseCrud.Menu.read_all(client)
     assert code == 200
+    assert menus == []
 
     data = {"title": "Menu", "description": None}
-    code, rspn = await TestBaseCrud.Menu.write(client, data)
+    code, menu = await TestBaseCrud.Menu.write(client, data)
     assert code == 201
-    assert rspn["title"] == "Menu"
-    assert rspn["description"] is None
-    data = {"title": "Menu1", "description": "11"}
-    code, rspn = await TestBaseCrud.Menu.write(client, data)
-    code, rspn = await TestBaseCrud.Menu.read_all(client)
+    assert menu["title"] == "Menu"
+    assert menu["description"] is None
+    code, menus = await TestBaseCrud.Menu.read_all(client)
+    assert len(menus) == 1
+
+    code, menu = await TestBaseCrud.Menu.get(client, {"id": menu.get("id")})
+    assert code == 200
+    assert menu["title"] == data["title"]
+
+    upd_menu = {
+        "id": menu.get("id"),
+        "title": "upd Menu",
+        "description": "",
+    }
+    code, menu = await TestBaseCrud.Menu.update(client, upd_menu)
+    assert code == 200
+    print(menu)
+    # assert menu["title"] == "upd Menu"
 
 
-#         code, menu = await self.Menu.get(client, {"id": rspn.get("id")})
-#         assert code == 200
-#         assert menu["title"] == rspn["title"]
-#
-#         upd_data = {
-#             "id": rspn.get("id"),
-#             "title": "upd Menu",
-#             "description": "",
-#         }
-#         code, upd_rspn = await self.Menu.update(client, upd_data)
-#         assert code == 200
-#         assert upd_rspn["title"] == "upd Menu"
-#
 #         code = await self.Menu.delete(client, rspn)
 #         assert code == 200
 #

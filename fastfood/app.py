@@ -1,4 +1,3 @@
-import aioredis
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 
