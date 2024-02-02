@@ -53,16 +53,10 @@ def app(event_loop) -> Generator[FastAPI, None, None]:
     yield app
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture()
 async def client(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         app=app,
         base_url="http://localhost:8000/api/v1/menus",
     ) as async_client:
         yield async_client
-
-
-@pytest_asyncio.fixture(scope="function")
-async def asession(event_loop) -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session

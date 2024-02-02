@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+import aioredis
+from fastapi import FastAPI, Request
+from starlette.responses import JSONResponse
 
 from fastfood.routers.dish import router as dish_router
 from fastfood.routers.menu import router as menu_router
@@ -61,7 +63,7 @@ tags_metadata = [
 ]
 
 
-def create_app() -> FastAPI:
+def create_app(redis=None) -> FastAPI:
     """
     Фабрика FastAPI.
     """

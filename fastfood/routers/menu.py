@@ -1,12 +1,13 @@
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import schemas
 from fastfood.cruds import crud
 from fastfood.dbase import get_async_session
+from fastfood.service.menu import MenuService
 
 router = APIRouter(
     prefix="/api/v1/menus",
@@ -15,21 +16,22 @@ router = APIRouter(
 
 
 @router.get("/", response_model=Optional[List[schemas.Menu]])
-async def get_menus(session: AsyncSession = Depends(get_async_session)):
-    result = await crud.get_menus(session=session)
-    return result.scalars().all()
+async def get_menus(
+    menu: MenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+):
+    result = await menu.read_menus()
+    return result
 
 
 @router.post("/", status_code=201, response_model=schemas.Menu)
 async def add_menu(
     menu: schemas.MenuBase,
-    session: AsyncSession = Depends(get_async_session),
+    responce: MenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.create_menu_item(
-        menu=menu,
-        session=session,
-    )
-    return result
+    rspn = await responce.create_menu(menu)
+    return rspn
 
 
 @router.get("/{menu_id}", response_model=schemas.MenuRead)
