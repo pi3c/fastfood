@@ -3,7 +3,7 @@ import sys
 
 import uvicorn
 
-from fastfood.cruds import create_db_and_tables
+from fastfood.repository import create_db_and_tables
 
 
 def run_app():

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_USER: str = ""
     POSTGRES_DB_TEST: str = ""
+    REDIS_DB: str = ""
 
     @property
     def DATABASE_URL_asyncpg(self):

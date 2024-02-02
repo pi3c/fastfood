@@ -1,4 +1,3 @@
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
@@ -10,7 +9,7 @@ from fastfood import models, schemas
 from fastfood.dbase import get_async_session
 
 
-class MenuCrud:
+class MenuRepository:
     def __init__(self, session: AsyncSession = Depends(get_async_session)):
         self.db = session
 

@@ -1,9 +1,9 @@
 from fastfood import models
 from fastfood.dbase import async_engine
 
-from .dish import DishCrud
-from .menu import MenuCrud
-from .submenu import SubMenuCrud
+from .dish import DishRepository
+from .menu import MenuRepository
+from .submenu import SubMenuRepository
 
 
 async def create_db_and_tables():
@@ -12,8 +12,8 @@ async def create_db_and_tables():
         await conn.run_sync(models.Base.metadata.create_all)
 
 
-class Crud(MenuCrud, SubMenuCrud, DishCrud):
+class Repository(MenuRepository, SubMenuRepository, DishRepository):
     pass
 
 
-crud = Crud()
+ropo = Repository()

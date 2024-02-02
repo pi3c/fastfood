@@ -1,12 +1,9 @@
-from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from fastfood import schemas
-from fastfood.cruds import crud
-from fastfood.dbase import get_async_session
+from fastfood.service.dish import DishService
 from fastfood.utils import price_converter
 
 router = APIRouter(
@@ -17,9 +14,12 @@ router = APIRouter(
 
 @router.get("/")
 async def get_dishes(
-    menu_id: UUID, submenu_id: UUID, session: AsyncSession = Depends(get_async_session)
+    menu_id: UUID,
+    submenu_id: UUID,
+    dish: DishService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.get_dishes(submenu_id=submenu_id, session=session)
+    result = await dish.read_dishes(menu_id, submenu_id)
     return result
 
 
@@ -27,13 +27,14 @@ async def get_dishes(
 async def create_dish(
     menu_id: UUID,
     submenu_id: UUID,
-    dish: schemas.DishBase,
-    session: AsyncSession = Depends(get_async_session),
+    dish_data: schemas.DishBase,
+    dish: DishService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.create_dish_item(
-        submenu_id=submenu_id,
-        dish=dish,
-        session=session,
+    result = await dish.create_dish(
+        menu_id,
+        submenu_id,
+        dish_data,
     )
     return price_converter(result)
 
@@ -43,11 +44,13 @@ async def get_dish(
     menu_id: UUID,
     submenu_id: UUID,
     dish_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
+    dish: DishService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.get_dish_item(
-        dish_id=dish_id,
-        session=session,
+    result = await dish.read_dish(
+        menu_id,
+        submenu_id,
+        dish_id,
     )
     if not result:
         raise HTTPException(status_code=404, detail="dish not found")
@@ -59,13 +62,15 @@ async def update_dish(
     menu_id: UUID,
     submenu_id: UUID,
     dish_id: UUID,
-    dish: schemas.DishBase,
-    session: AsyncSession = Depends(get_async_session),
+    dish_data: schemas.DishBase,
+    dish: DishService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.update_dish_item(
-        dish_id=dish_id,
-        dish=dish,
-        session=session,
+    result = await dish.update_dish(
+        menu_id,
+        submenu_id,
+        dish_id,
+        dish_data,
     )
     return price_converter(result)
 
@@ -75,6 +80,7 @@ async def delete_dish(
     menu_id: UUID,
     submenu_id: UUID,
     dish_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
+    dish: DishService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    await crud.delete_dish_item(dish_id=dish_id, session=session)
+    await dish.del_dish(menu_id, submenu_id, dish_id)

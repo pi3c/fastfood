@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from starlette.responses import JSONResponse
+from fastapi import FastAPI
 
 from fastfood.routers.dish import router as dish_router
 from fastfood.routers.menu import router as menu_router
