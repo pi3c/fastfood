@@ -40,7 +40,7 @@ class SubMenuRepository:
         s = aliased(models.SubMenu)
         d = aliased(models.Dish)
         query = (
-            select(s, func.count(distinct(d.id)).label("dishes_count"))
+            select(s, func.count(distinct(d.id)).label('dishes_count'))
             .join(d, s.id == d.parent_submenu, isouter=True)
             .group_by(s.id)
             .where(s.id == submenu_id)

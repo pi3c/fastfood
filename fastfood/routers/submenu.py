@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -7,12 +7,12 @@ from fastfood.schemas import MenuBase, SubMenuRead
 from fastfood.service.submenu import SubmenuService
 
 router = APIRouter(
-    prefix="/api/v1/menus/{menu_id}/submenus",
-    tags=["submenu"],
+    prefix='/api/v1/menus/{menu_id}/submenus',
+    tags=['submenu'],
 )
 
 
-@router.get("/", response_model=Optional[List[SubMenuRead]])
+@router.get('/', response_model=Optional[list[SubMenuRead]])
 async def get_submenus(
     menu_id: UUID,
     submenu: SubmenuService = Depends(),
@@ -22,7 +22,7 @@ async def get_submenus(
     return result.scalars().all()
 
 
-@router.post("/", status_code=201, response_model=SubMenuRead)
+@router.post('/', status_code=201, response_model=SubMenuRead)
 async def create_submenu_item(
     menu_id: UUID,
     submenu_data: MenuBase,
@@ -36,7 +36,7 @@ async def create_submenu_item(
     return result
 
 
-@router.get("/{submenu_id}", response_model=SubMenuRead)
+@router.get('/{submenu_id}', response_model=SubMenuRead)
 async def get_submenu(
     menu_id: UUID,
     submenu_id: UUID,
@@ -48,12 +48,12 @@ async def get_submenu(
         submenu_id=submenu_id,
     )
     if not result:
-        raise HTTPException(status_code=404, detail="submenu not found")
+        raise HTTPException(status_code=404, detail='submenu not found')
     return result
 
 
 @router.patch(
-    "/{submenu_id}",
+    '/{submenu_id}',
     response_model=MenuBase,
 )
 async def update_submenu(
@@ -71,7 +71,7 @@ async def update_submenu(
     return result.scalars().one()
 
 
-@router.delete("/{submenu_id}")
+@router.delete('/{submenu_id}')
 async def delete_submenu(
     menu_id: UUID,
     submenu_id: UUID,

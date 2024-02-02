@@ -7,12 +7,12 @@ from fastfood.service.dish import DishService
 from fastfood.utils import price_converter
 
 router = APIRouter(
-    prefix="/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes",
-    tags=["dish"],
+    prefix='/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes',
+    tags=['dish'],
 )
 
 
-@router.get("/")
+@router.get('/')
 async def get_dishes(
     menu_id: UUID,
     submenu_id: UUID,
@@ -23,7 +23,7 @@ async def get_dishes(
     return result
 
 
-@router.post("/", status_code=201)
+@router.post('/', status_code=201)
 async def create_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -39,7 +39,7 @@ async def create_dish(
     return price_converter(result)
 
 
-@router.get("/{dish_id}")
+@router.get('/{dish_id}')
 async def get_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -53,11 +53,11 @@ async def get_dish(
         dish_id,
     )
     if not result:
-        raise HTTPException(status_code=404, detail="dish not found")
+        raise HTTPException(status_code=404, detail='dish not found')
     return price_converter(result)
 
 
-@router.patch("/{dish_id}")
+@router.patch('/{dish_id}')
 async def update_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -75,7 +75,7 @@ async def update_dish(
     return price_converter(result)
 
 
-@router.delete("/{dish_id}")
+@router.delete('/{dish_id}')
 async def delete_dish(
     menu_id: UUID,
     submenu_id: UUID,

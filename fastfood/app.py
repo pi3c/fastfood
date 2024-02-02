@@ -50,14 +50,14 @@ description = """
 
 tags_metadata = [
     {
-        "name": "menu",
-        "description": "Операции с меню.",
+        'name': 'menu',
+        'description': 'Операции с меню.',
     },
     {
-        "name": "submenu",
-        "description": "Подменю и работа с ним",
+        'name': 'submenu',
+        'description': 'Подменю и работа с ним',
     },
-    {"name": "dish", "description": "Блюда и работа с ними"},
+    {'name': 'dish', 'description': 'Блюда и работа с ними'},
 ]
 
 
@@ -66,17 +66,17 @@ def create_app(redis=None) -> FastAPI:
     Фабрика FastAPI.
     """
     app = FastAPI(
-        title="Fastfood-API",
+        title='Fastfood-API',
         description=description,
-        version="0.0.1",
+        version='0.0.1',
         contact={
-            "name": "Sergey Vanyushkin",
-            "url": "http://pi3c.ru",
-            "email": "pi3c@yandex.ru",
+            'name': 'Sergey Vanyushkin',
+            'url': 'http://pi3c.ru',
+            'email': 'pi3c@yandex.ru',
         },
         license_info={
-            "name": "MIT license",
-            "url": "https://mit-license.org/",
+            'name': 'MIT license',
+            'url': 'https://mit-license.org/',
         },
         openapi_tags=tags_metadata,
     )

@@ -1,6 +1,6 @@
 from typing import Any
 
-import redis.asyncio as redis
+import redis.asyncio as redis  # type: ignore
 from fastapi import BackgroundTasks, Depends
 
 from fastfood.dbase import get_redis_pool

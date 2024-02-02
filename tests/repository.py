@@ -1,31 +1,29 @@
-from typing import Tuple
-
 from httpx import AsyncClient, Response
 
 
 class Repository:
     class Menu:
         @staticmethod
-        async def read_all(ac: AsyncClient) -> Tuple[int, dict]:
+        async def read_all(ac: AsyncClient) -> tuple[int, dict]:
             """чтение всех меню"""
 
-            response: Response = await ac.get("/")
+            response: Response = await ac.get('/')
             return response.status_code, response.json()
 
         @staticmethod
-        async def get(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
+        async def get(ac: AsyncClient, data: dict) -> tuple[int, dict]:
             """Получение меню по id"""
             response: Response = await ac.get(f"/{data.get('id')}")
             return response.status_code, response.json()
 
         @staticmethod
-        async def write(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
+        async def write(ac: AsyncClient, data: dict) -> tuple[int, dict]:
             """создания меню"""
-            response: Response = await ac.post("/", json=data)
+            response: Response = await ac.post('/', json=data)
             return response.status_code, response.json()
 
         @staticmethod
-        async def update(ac: AsyncClient, data: dict) -> Tuple[int, dict]:
+        async def update(ac: AsyncClient, data: dict) -> tuple[int, dict]:
             """Обновление меню по id"""
             response: Response = await ac.patch(
                 f"/{data.get('id')}",
@@ -41,7 +39,7 @@ class Repository:
 
     class Submenu:
         @staticmethod
-        async def read_all(ac: AsyncClient, menu: dict) -> Tuple[int, dict]:
+        async def read_all(ac: AsyncClient, menu: dict) -> tuple[int, dict]:
             """чтение всех меню"""
             response: Response = await ac.get(f"/{menu.get('id')}/submenus/")
             return response.status_code, response.json()
@@ -51,7 +49,7 @@ class Repository:
             ac: AsyncClient,
             menu: dict,
             submenu: dict,
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """Получение меню по id"""
             response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}",
@@ -63,7 +61,7 @@ class Repository:
             ac: AsyncClient,
             menu: dict,
             submenu: dict,
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """создания меню"""
             response: Response = await ac.post(
                 f"/{menu.get('id')}/submenus/",
@@ -74,7 +72,7 @@ class Repository:
         @staticmethod
         async def update(
             ac: AsyncClient, menu: dict, submenu: dict
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """Обновление меню по id"""
             response: Response = await ac.patch(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}",
@@ -94,7 +92,7 @@ class Repository:
         @staticmethod
         async def read_all(
             ac: AsyncClient, menu: dict, submenu: dict
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """чтение всех блюд"""
             response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/",
@@ -104,7 +102,7 @@ class Repository:
         @staticmethod
         async def get(
             ac: AsyncClient, menu: dict, submenu: dict, dish: dict
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """Получение блюда по id"""
             response: Response = await ac.get(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"
@@ -115,7 +113,7 @@ class Repository:
         @staticmethod
         async def write(
             ac: AsyncClient, menu: dict, submenu: dict, dish: dict
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """создания блюда"""
             response: Response = await ac.post(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}/dishes/",
@@ -126,7 +124,7 @@ class Repository:
         @staticmethod
         async def update(
             ac: AsyncClient, menu: dict, submenu: dict, dish: dict
-        ) -> Tuple[int, dict]:
+        ) -> tuple[int, dict]:
             """Обновление блюда по id"""
             response: Response = await ac.patch(
                 f"/{menu.get('id')}/submenus/{submenu.get('id')}"

@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -6,7 +5,7 @@ from pydantic import BaseModel
 
 class MenuBase(BaseModel):
     title: str
-    description: Optional[str]
+    description: str | None
 
     class Config:
         from_attributes = True

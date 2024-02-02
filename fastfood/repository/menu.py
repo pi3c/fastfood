@@ -33,8 +33,8 @@ class MenuRepository:
         query = (
             select(
                 m,
-                func.count(distinct(s.id)).label("submenus_count"),
-                func.count(distinct(d.id)).label("dishes_count"),
+                func.count(distinct(s.id)).label('submenus_count'),
+                func.count(distinct(d.id)).label('dishes_count'),
             )
             .join(s, s.parent_menu == m.id, isouter=True)
             .join(d, d.parent_submenu == s.id, isouter=True)

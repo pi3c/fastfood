@@ -1,6 +1,6 @@
 from uuid import UUID
 
-import redis.asyncio as redis
+import redis.asyncio as redis  # type: ignore
 from fastapi import BackgroundTasks, Depends
 
 from fastfood.dbase import get_async_redis_client
