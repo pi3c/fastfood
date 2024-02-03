@@ -17,7 +17,7 @@ async def get_dishes(
     submenu_id: UUID,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-):
+) -> list[Dish]:
     result = await dish.read_dishes(menu_id, submenu_id)
     return result
 
