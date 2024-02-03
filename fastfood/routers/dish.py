@@ -2,9 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from fastfood import schemas
+from fastfood.schemas import Dish, DishBase
 from fastfood.service.dish import DishService
-from fastfood.utils import price_converter
 
 router = APIRouter(
     prefix='/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes',
@@ -12,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get('/')
+@router.get('/', response_model=list[Dish])
 async def get_dishes(
     menu_id: UUID,
     submenu_id: UUID,
@@ -23,23 +22,22 @@ async def get_dishes(
     return result
 
 
-@router.post('/', status_code=201)
+@router.post('/', status_code=201, response_model=Dish)
 async def create_dish(
     menu_id: UUID,
     submenu_id: UUID,
-    dish_data: schemas.DishBase,
+    dish_data: DishBase,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await dish.create_dish(
+    return await dish.create_dish(
         menu_id,
         submenu_id,
         dish_data,
     )
-    return price_converter(result)
 
 
-@router.get('/{dish_id}')
+@router.get('/{dish_id}', response_model=Dish)
 async def get_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -54,15 +52,15 @@ async def get_dish(
     )
     if not result:
         raise HTTPException(status_code=404, detail='dish not found')
-    return price_converter(result)
+    return result
 
 
-@router.patch('/{dish_id}')
+@router.patch('/{dish_id}', response_model=Dish)
 async def update_dish(
     menu_id: UUID,
     submenu_id: UUID,
     dish_id: UUID,
-    dish_data: schemas.DishBase,
+    dish_data: DishBase,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
@@ -72,7 +70,7 @@ async def update_dish(
         dish_id,
         dish_data,
     )
-    return price_converter(result)
+    return result
 
 
 @router.delete('/{dish_id}')

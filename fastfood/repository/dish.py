@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastfood import models
 from fastfood.dbase import get_async_session
-from fastfood.schemas import DishBase
+from fastfood.schemas import Dish_db
 
 
 class DishRepository:
@@ -24,13 +24,13 @@ class DishRepository:
         self,
         menu_id: UUID,
         submenu_id: UUID,
-        dish_data: DishBase,
+        dish_data: Dish_db,
     ):
         new_dish = models.Dish(**dish_data.model_dump())
         new_dish.parent_submenu = submenu_id
         self.db.add(new_dish)
-        await self.db.flush()
         await self.db.commit()
+        await self.db.refresh(new_dish)
         return new_dish
 
     async def get_dish_item(
@@ -48,7 +48,7 @@ class DishRepository:
         menu_id: UUID,
         submenu_id: UUID,
         dish_id: UUID,
-        dish_data: DishBase,
+        dish_data: Dish_db,
     ):
         query = (
             update(models.Dish)

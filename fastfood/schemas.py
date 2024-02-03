@@ -25,8 +25,12 @@ class SubMenuRead(Menu):
 
 
 class DishBase(MenuBase):
-    price: float
+    price: str
 
 
 class Dish(DishBase, Menu):
     pass
+
+
+class Dish_db(MenuBase):
+    price: float

@@ -6,7 +6,7 @@ from fastapi import BackgroundTasks, Depends
 from fastfood.dbase import get_async_redis_client
 from fastfood.repository.dish import DishRepository
 from fastfood.repository.redis import RedisRepository
-from fastfood.schemas import DishBase
+from fastfood.schemas import Dish_db, DishBase
 
 
 class DishService:
@@ -22,6 +22,11 @@ class DishService:
 
     async def read_dishes(self, menu_id: UUID, submenu_id: UUID):
         data = await self.dish_repo.get_dishes(menu_id, submenu_id)
+        response = []
+        for row in data:
+            dish = row.__dict__
+            dish['price'] = str(dish['price'])
+            response.append(dish)
         return data
 
     async def create_dish(
@@ -30,24 +35,33 @@ class DishService:
         submenu_id: UUID,
         dish_data: DishBase,
     ):
+        dish = Dish_db(**dish_data.model_dump())
         data = await self.dish_repo.create_dish_item(
             menu_id,
             submenu_id,
-            dish_data,
+            dish,
         )
-        return data
+        response = data.__dict__
+        response['price'] = str(response['price'])
+        return response
 
     async def read_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID):
         data = await self.dish_repo.get_dish_item(menu_id, submenu_id, dish_id)
-        return data
+        if data is None:
+            return
+        response = data.__dict__
+        response['price'] = str(response['price'])
+
+        return response
 
     async def update_dish(
         self, menu_id: UUID, submenu_id: UUID, dish_id, dish_data: DishBase
     ):
-        data = await self.dish_repo.update_dish_item(
-            menu_id, submenu_id, dish_id, dish_data
-        )
-        return data
+        dish = Dish_db(**dish_data.model_dump())
+        data = await self.dish_repo.update_dish_item(menu_id, submenu_id, dish_id, dish)
+        response = data.__dict__
+        response['price'] = str(response['price'])
+        return response
 
     async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID):
         data = await self.dish_repo.delete_dish_item(

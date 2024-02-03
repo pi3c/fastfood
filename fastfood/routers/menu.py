@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -12,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=Optional[list[Menu]])
+@router.get('/', response_model=list[Menu])
 async def get_menus(
     menu: MenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
