@@ -15,15 +15,13 @@ class DishService:
         dish_repo: DishRepository = Depends(),
         redis_client: redis.Redis = Depends(get_async_redis_client),
         background_tasks: BackgroundTasks = None,
-    ):
+    ) -> None:
         self.dish_repo = dish_repo
         self.cache_client = RedisRepository(redis_client)
         self.background_tasks = background_tasks
 
-    async def read_dishes(self, menu_id: UUID, submenu_id: UUID):
+    async def read_dishes(self, menu_id: UUID, submenu_id: UUID) -> list[dict]:
         data = await self.dish_repo.get_dishes(menu_id, submenu_id)
-        if data:
-            print(type(data[0]))
         response = []
         for row in data:
             dish = row.__dict__
@@ -36,7 +34,7 @@ class DishService:
         menu_id: UUID,
         submenu_id: UUID,
         dish_data: DishBase,
-    ):
+    ) -> dict:
         dish = Dish_db(**dish_data.model_dump())
         data = await self.dish_repo.create_dish_item(
             menu_id,
@@ -47,28 +45,27 @@ class DishService:
         response['price'] = str(response['price'])
         return response
 
-    async def read_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID):
+    async def read_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID) -> dict:
         data = await self.dish_repo.get_dish_item(menu_id, submenu_id, dish_id)
         if data is None:
-            return
+            return {}
         response = data.__dict__
         response['price'] = str(response['price'])
-
         return response
 
     async def update_dish(
         self, menu_id: UUID, submenu_id: UUID, dish_id, dish_data: DishBase
-    ):
+    ) -> dict:
         dish = Dish_db(**dish_data.model_dump())
         data = await self.dish_repo.update_dish_item(menu_id, submenu_id, dish_id, dish)
         response = data.__dict__
         response['price'] = str(response['price'])
         return response
 
-    async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID):
-        data = await self.dish_repo.delete_dish_item(
+    async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID) -> int:
+        response = await self.dish_repo.delete_dish_item(
             menu_id,
             submenu_id,
             dish_id,
         )
-        return data
+        return response
