@@ -22,12 +22,14 @@ class DishService:
 
     async def read_dishes(self, menu_id: UUID, submenu_id: UUID):
         data = await self.dish_repo.get_dishes(menu_id, submenu_id)
+        if data:
+            print(type(data[0]))
         response = []
         for row in data:
             dish = row.__dict__
             dish['price'] = str(dish['price'])
             response.append(dish)
-        return data
+        return response
 
     async def create_dish(
         self,
