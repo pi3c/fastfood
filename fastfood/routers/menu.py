@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from fastfood.schemas import Menu, MenuBase, MenuRead
+from fastfood.schemas import MenuBase, MenuRead
 from fastfood.service.menu import MenuService
 
 router = APIRouter(
@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=list[Menu])
+@router.get('/', response_model=list[MenuRead])
 async def get_menus(
     menu: MenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
@@ -19,7 +19,7 @@ async def get_menus(
     return await menu.read_menus()
 
 
-@router.post('/', status_code=201, response_model=Menu)
+@router.post('/', status_code=201, response_model=MenuRead)
 async def add_menu(
     menu: MenuBase,
     responce: MenuService = Depends(),
