@@ -5,30 +5,31 @@ from sqlalchemy import delete, distinct, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from fastfood import models, schemas
+from fastfood import schemas
 from fastfood.dbase import get_async_session
+from fastfood.models import Dish, Menu, SubMenu
 
 
 class MenuRepository:
     def __init__(self, session: AsyncSession = Depends(get_async_session)):
         self.db = session
 
-    async def get_menus(self):
-        query = select(models.Menu)
+    async def get_menus(self) -> list[Menu]:
+        query = select(Menu)
         menus = await self.db.execute(query)
-        return menus.scalars().all()
+        return [x for x in menus.scalars().all()]
 
-    async def create_menu_item(self, menu: schemas.MenuBase):
-        new_menu = models.Menu(**menu.model_dump())
+    async def create_menu_item(self, menu: schemas.MenuBase) -> Menu:
+        new_menu = Menu(**menu.model_dump())
         self.db.add(new_menu)
         await self.db.commit()
         await self.db.refresh(new_menu)
         return new_menu
 
-    async def get_menu_item(self, menu_id: UUID):
-        m = aliased(models.Menu)
-        s = aliased(models.SubMenu)
-        d = aliased(models.Dish)
+    async def get_menu_item(self, menu_id: UUID) -> Menu | None:
+        m = aliased(Menu)
+        s = aliased(SubMenu)
+        d = aliased(Dish)
 
         query = (
             select(
@@ -51,19 +52,16 @@ class MenuRepository:
         self,
         menu_id: UUID,
         menu: schemas.MenuBase,
-    ):
-        query = (
-            update(models.Menu)
-            .where(models.Menu.id == menu_id)
-            .values(**menu.model_dump())
-        )
+    ) -> Menu:
+        query = update(Menu).where(Menu.id == menu_id).values(**menu.model_dump())
         await self.db.execute(query)
         await self.db.commit()
-        qr = select(models.Menu).where(models.Menu.id == menu_id)
+        qr = select(Menu).where(Menu.id == menu_id)
         updated_menu = await self.db.execute(qr)
-        return updated_menu
+        return updated_menu.scalar_one()
 
-    async def delete_menu_item(self, menu_id: UUID):
-        query = delete(models.Menu).where(models.Menu.id == menu_id)
+    async def delete_menu_item(self, menu_id: UUID) -> int:
+        query = delete(Menu).where(Menu.id == menu_id)
         await self.db.execute(query)
         await self.db.commit()
+        return 200

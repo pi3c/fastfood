@@ -52,7 +52,7 @@ async def update_menu(
         menu_id=menu_id,
         menu_data=menu,
     )
-    return result.scalars().one()
+    return result
 
 
 @router.delete('/{menu_id}')
