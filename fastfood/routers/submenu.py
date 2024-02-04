@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -12,14 +11,14 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=Optional[list[SubMenuRead]])
+@router.get('/', response_model=list[SubMenuRead])
 async def get_submenus(
     menu_id: UUID,
     submenu: SubmenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
     result = await submenu.read_submenus(menu_id=menu_id)
-    return result.scalars().all()
+    return result
 
 
 @router.post('/', status_code=201, response_model=SubMenuRead)
@@ -54,7 +53,7 @@ async def get_submenu(
 
 @router.patch(
     '/{submenu_id}',
-    response_model=MenuBase,
+    response_model=SubMenuRead,
 )
 async def update_submenu(
     menu_id: UUID,
@@ -68,7 +67,7 @@ async def update_submenu(
         submenu_id=submenu_id,
         submenu_data=submenu_data,
     )
-    return result.scalars().one()
+    return result
 
 
 @router.delete('/{submenu_id}')
