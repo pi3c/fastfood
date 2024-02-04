@@ -33,24 +33,40 @@ class SubmenuService:
             submenus.append(submenu)
         return submenus
 
-    async def create_submenu(self, menu_id: UUID, submenu_data: MenuBase):
+    async def create_submenu(
+        self, menu_id: UUID, submenu_data: MenuBase
+    ) -> SubMenuRead:
         data = await self.submenu_repo.create_submenu_item(
             menu_id,
             submenu_data,
         )
-        return data
+        menu = data.__dict__
+        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
+        menu['dishes_count'] = len(menu.pop('dishes'))
+        menu = SubMenuRead(**menu)
+        return menu
 
-    async def read_menu(self, menu_id: UUID, submenu_id: UUID):
+    async def read_menu(self, menu_id: UUID, submenu_id: UUID) -> SubMenuRead | None:
         data = await self.submenu_repo.get_submenu_item(menu_id, submenu_id)
-        return data
+        if data is None:
+            return None
+        menu = data.__dict__
+        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
+        menu['dishes_count'] = len(menu.pop('dishes'))
+        menu = SubMenuRead(**menu)
+        return menu
 
     async def update_submenu(
         self, menu_id: UUID, submenu_id: UUID, submenu_data: MenuBase
-    ):
+    ) -> SubMenuRead:
         data = await self.submenu_repo.update_submenu_item(
             menu_id, submenu_id, submenu_data
         )
-        return data
+        menu = data.__dict__
+        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
+        menu['dishes_count'] = len(menu.pop('dishes'))
+        menu = SubMenuRead(**menu)
+        return menu
 
-    async def del_menu(self, menu_id: UUID, submenu_id: UUID):
+    async def del_menu(self, menu_id: UUID, submenu_id: UUID) -> int:
         return await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
