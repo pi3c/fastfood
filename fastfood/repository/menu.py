@@ -60,8 +60,7 @@ class MenuRepository:
         updated_menu = await self.db.execute(qr)
         return updated_menu.scalar_one()
 
-    async def delete_menu_item(self, menu_id: UUID) -> int:
+    async def delete_menu_item(self, menu_id: UUID):
         query = delete(Menu).where(Menu.id == menu_id)
         await self.db.execute(query)
         await self.db.commit()
-        return 200

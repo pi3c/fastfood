@@ -4,7 +4,7 @@ import redis.asyncio as redis  # type: ignore
 from fastapi import BackgroundTasks, Depends
 
 from fastfood.dbase import get_async_redis_client
-from fastfood.repository.redis import RedisRepository
+from fastfood.repository.redis import RedisRepository, get_key
 from fastfood.repository.submenu import SubMenuRepository
 from fastfood.schemas import MenuBase, SubMenuRead
 
@@ -18,10 +18,17 @@ class SubmenuService:
     ) -> None:
 
         self.submenu_repo = submenu_repo
-        self.cache_client = RedisRepository(redis_client)
-        self.background_tasks = background_tasks
+        self.cache = RedisRepository(redis_client)
+        self.bg_tasks = background_tasks
+        self.key = get_key
 
     async def read_submenus(self, menu_id: UUID) -> list[SubMenuRead]:
+        cached_submenus = await self.cache.get(
+            self.key('submenus', menu_id=str(menu_id))
+        )
+        if cached_submenus is not None:
+            return cached_submenus
+
         data = await self.submenu_repo.get_submenus(menu_id=menu_id)
         submenus = []
         for r in data:
@@ -31,6 +38,10 @@ class SubmenuService:
                 submenu['dishes_count'] = len(subq.dishes)
             submenu = SubMenuRead(**submenu)
             submenus.append(submenu)
+
+        await self.cache.set(
+            self.key('submenus', menu_id=str(menu_id)), submenus, self.bg_tasks
+        )
         return submenus
 
     async def create_submenu(
@@ -40,20 +51,40 @@ class SubmenuService:
             menu_id,
             submenu_data,
         )
-        menu = data.__dict__
-        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
-        menu['dishes_count'] = len(menu.pop('dishes'))
-        menu = SubMenuRead(**menu)
-        return menu
+        submenu = data.__dict__
+        submenu = {k: v for k, v in submenu.items() if not k.startswith('_')}
+        submenu['dishes_count'] = len(submenu.pop('dishes'))
+        submenu = SubMenuRead(**submenu)
+        await self.cache.set(
+            self.key('submenu', menu_id=str(menu_id)), submenu, self.bg_tasks
+        )
+        await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
+
+        return submenu
 
     async def read_menu(self, menu_id: UUID, submenu_id: UUID) -> SubMenuRead | None:
+        cached_submenu = await self.cache.get(
+            self.key(
+                'submenu',
+                menu_id=str(menu_id),
+                submenu_id=str(submenu_id),
+            )
+        )
+        if cached_submenu is not None:
+            return cached_submenu
+
         data = await self.submenu_repo.get_submenu_item(menu_id, submenu_id)
         if data is None:
             return None
-        menu = data.__dict__
-        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
-        menu['dishes_count'] = len(menu.pop('dishes'))
-        menu = SubMenuRead(**menu)
+        submenu = data.__dict__
+        submenu = {k: v for k, v in submenu.items() if not k.startswith('_')}
+        submenu['dishes_count'] = len(submenu.pop('dishes'))
+        menu = SubMenuRead(**submenu)
+        await self.cache.set(
+            self.key('submenu', menu_id=str(menu_id), submenu_id=str(submenu_id)),
+            submenu,
+            self.bg_tasks,
+        )
         return menu
 
     async def update_submenu(
@@ -62,11 +93,28 @@ class SubmenuService:
         data = await self.submenu_repo.update_submenu_item(
             menu_id, submenu_id, submenu_data
         )
-        menu = data.__dict__
-        menu = {k: v for k, v in menu.items() if not k.startswith('_')}
-        menu['dishes_count'] = len(menu.pop('dishes'))
-        menu = SubMenuRead(**menu)
-        return menu
+        submenu = data.__dict__
+        submenu = {k: v for k, v in submenu.items() if not k.startswith('_')}
+        submenu['dishes_count'] = len(submenu.pop('dishes'))
+        submenu = SubMenuRead(**submenu)
+        await self.cache.set(
+            self.key('submenu', menu_id=str(menu_id), submenu_id=str(submenu_id)),
+            submenu,
+            self.bg_tasks,
+        )
+        await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
+
+        return submenu
 
     async def del_menu(self, menu_id: UUID, submenu_id: UUID) -> int:
-        return await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
+        code = await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
+        await self.cache.delete(
+            key=self.key(
+                'submenu',
+                menu_id=str(menu_id),
+                submenu_id=str(submenu_id),
+            ),
+            bg_task=self.bg_tasks,
+        )
+        await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
+        return code
