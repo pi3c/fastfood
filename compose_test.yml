@@ -55,9 +55,6 @@ services:
       redis:
         condition: service_healthy
 
-    volumes:
-      - .:/usr/src/fastfood
-
     restart: always
 
     command: /bin/bash -c 'poetry run pytest -vv'

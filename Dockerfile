@@ -10,8 +10,6 @@ WORKDIR /usr/src/fastfood
 
 COPY . .
 
-COPY ./example.env ./.env
-
 RUN touch /usr/src/RUN_IN_DOCKER
 
 RUN poetry install
