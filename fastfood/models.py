@@ -1,6 +1,6 @@
 import uuid
 from copy import deepcopy
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,13 +21,13 @@ str_25 = Annotated[str, 25]
 class Base(DeclarativeBase):
     id: Mapped[uuidpk]
     title: Mapped[str_25]
-    description: Mapped[Optional[str]]
+    description: Mapped[str | None]
 
     def __eq__(self, other):
         classes_match = isinstance(other, self.__class__)
         a, b = deepcopy(self.__dict__), deepcopy(other.__dict__)
-        a.pop("_sa_instance_state", None)
-        b.pop("_sa_instance_state", None)
+        a.pop('_sa_instance_state', None)
+        b.pop('_sa_instance_state', None)
         attrs_match = a == b
         return classes_match and attrs_match
 
@@ -36,13 +36,13 @@ class Base(DeclarativeBase):
 
 
 class Menu(Base):
-    __tablename__ = "menu"
+    __tablename__ = 'menu'
 
-    submenus: Mapped[List["SubMenu"]] = relationship(
-        "SubMenu",
-        backref="menu",
-        lazy="selectin",
-        cascade="all, delete",
+    submenus: Mapped[list['SubMenu']] = relationship(
+        'SubMenu',
+        backref='menu',
+        lazy='selectin',
+        cascade='all, delete',
     )
 
     @hybridproperty
@@ -58,16 +58,16 @@ class Menu(Base):
 
 
 class SubMenu(Base):
-    __tablename__ = "submenu"
+    __tablename__ = 'submenu'
 
     parent_menu: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("menu.id", ondelete="CASCADE")
+        ForeignKey('menu.id', ondelete='CASCADE')
     )
-    dishes: Mapped[List["Dish"]] = relationship(
-        "Dish",
-        backref="submenu",
-        lazy="selectin",
-        cascade="all, delete",
+    dishes: Mapped[list['Dish']] = relationship(
+        'Dish',
+        backref='submenu',
+        lazy='selectin',
+        cascade='all, delete',
     )
 
     @hybridproperty
@@ -76,9 +76,9 @@ class SubMenu(Base):
 
 
 class Dish(Base):
-    __tablename__ = "dish"
+    __tablename__ = 'dish'
 
     price: Mapped[float]
     parent_submenu: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("submenu.id", ondelete="CASCADE")
+        ForeignKey('submenu.id', ondelete='CASCADE')
     )

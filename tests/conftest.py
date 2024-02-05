@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, Dict, Generator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -20,7 +20,7 @@ async_session_maker = async_sessionmaker(
 )
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def event_loop():
     try:
         loop = asyncio.get_event_loop()
@@ -30,7 +30,7 @@ def event_loop():
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="function", autouse=True)
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def db_init(event_loop):
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -45,28 +45,13 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-@pytest.fixture(scope="session")
-def app(event_loop) -> Generator[FastAPI, None, None]:
+@pytest_asyncio.fixture(scope='session')
+async def client() -> AsyncGenerator[AsyncClient, None]:
     app: FastAPI = create_app()
     app.dependency_overrides[get_async_session] = get_test_session
-    yield app
 
-
-@pytest_asyncio.fixture(scope="function")
-async def client(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         app=app,
-        base_url="http://localhost:8000/api/v1/menus",
+        base_url='http://localhost:8000/api/v1/menus',
     ) as async_client:
         yield async_client
-
-
-@pytest_asyncio.fixture(scope="function")
-async def asession(event_loop) -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
-
-
-@pytest.fixture(scope="session")
-def session_data() -> Dict:
-    return {}

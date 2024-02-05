@@ -1,76 +1,80 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from fastfood import schemas
-from fastfood.cruds import crud
-from fastfood.dbase import get_async_session
+from fastfood.schemas import MenuBase, SubMenuRead
+from fastfood.service.submenu import SubmenuService
 
 router = APIRouter(
-    prefix="/api/v1/menus/{menu_id}/submenus",
-    tags=["submenu"],
+    prefix='/api/v1/menus/{menu_id}/submenus',
+    tags=['submenu'],
 )
 
 
-@router.get("/")
+@router.get('/', response_model=list[SubMenuRead])
 async def get_submenus(
-    menu_id: UUID, session: AsyncSession = Depends(get_async_session)
+    menu_id: UUID,
+    submenu: SubmenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.get_submenus(menu_id=menu_id, session=session)
-    return result.scalars().all()
+    result = await submenu.read_submenus(menu_id=menu_id)
+    return result
 
 
-@router.post("/", status_code=201)
+@router.post('/', status_code=201, response_model=SubMenuRead)
 async def create_submenu_item(
     menu_id: UUID,
-    submenu: schemas.MenuBase,
-    session: AsyncSession = Depends(get_async_session),
+    submenu_data: MenuBase,
+    submenu: SubmenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.create_submenu_item(
+    result = await submenu.create_submenu(
         menu_id=menu_id,
-        submenu=submenu,
-        session=session,
+        submenu_data=submenu_data,
     )
     return result
 
 
-@router.get("/{submenu_id}", response_model=schemas.SubMenuRead)
+@router.get('/{submenu_id}', response_model=SubMenuRead)
 async def get_submenu(
     menu_id: UUID,
     submenu_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
+    submenu: SubmenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.get_submenu_item(
+    result = await submenu.read_menu(
         menu_id=menu_id,
         submenu_id=submenu_id,
-        session=session,
     )
     if not result:
-        raise HTTPException(status_code=404, detail="submenu not found")
+        raise HTTPException(status_code=404, detail='submenu not found')
     return result
 
 
 @router.patch(
-    "/{submenu_id}",
-    response_model=schemas.MenuBase,
+    '/{submenu_id}',
+    response_model=SubMenuRead,
 )
 async def update_submenu(
     menu_id: UUID,
     submenu_id: UUID,
-    submenu: schemas.MenuBase,
-    session: AsyncSession = Depends(get_async_session),
+    submenu_data: MenuBase,
+    submenu: SubmenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    result = await crud.update_submenu_item(
+    result = await submenu.update_submenu(
+        menu_id=menu_id,
         submenu_id=submenu_id,
-        submenu=submenu,
-        session=session,
+        submenu_data=submenu_data,
     )
-    return result.scalars().one()
+    return result
 
 
-@router.delete("/{submenu_id}")
+@router.delete('/{submenu_id}')
 async def delete_submenu(
-    menu_id: UUID, submenu_id: UUID, session: AsyncSession = Depends(get_async_session)
+    menu_id: UUID,
+    submenu_id: UUID,
+    submenu: SubmenuService = Depends(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    await crud.delete_submenu_item(submenu_id=submenu_id, session=session)
+    await submenu.del_menu(menu_id=menu_id, submenu_id=submenu_id)
