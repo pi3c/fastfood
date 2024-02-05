@@ -45,7 +45,7 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def client(event_loop) -> AsyncGenerator[AsyncClient, None]:
     app: FastAPI = create_app()
     app.dependency_overrides[get_async_session] = get_test_session

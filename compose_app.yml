@@ -55,6 +55,9 @@ services:
       redis:
         condition: service_healthy
 
+    volumes:
+      - .:/usr/src/fastfood
+
     restart: always
 
     command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-test-server'
