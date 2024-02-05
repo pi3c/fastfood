@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -45,22 +45,13 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-@pytest.fixture(scope='session')
-def app(event_loop) -> Generator[FastAPI, None, None]:
+@pytest_asyncio.fixture(scope='session')
+async def client() -> AsyncGenerator[AsyncClient, None]:
     app: FastAPI = create_app()
     app.dependency_overrides[get_async_session] = get_test_session
-    yield app
 
-
-@pytest_asyncio.fixture(scope='session')
-async def client(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         app=app,
         base_url='http://localhost:8000/api/v1/menus',
     ) as async_client:
         yield async_client
-
-
-@pytest.fixture(scope='session')
-def session_data() -> dict:
-    return {}

@@ -4,6 +4,11 @@ from httpx import AsyncClient
 from .repository import Repository as Repo
 
 
+@pytest.fixture(scope='module', autouse=True)
+def session_data() -> dict:
+    return {}
+
+
 @pytest.mark.asyncio
 async def test_01(client: AsyncClient, session_data: dict):
     """Проверяет создание меню"""

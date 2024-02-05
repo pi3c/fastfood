@@ -8,6 +8,10 @@ RUN mkdir -p /usr/src/fastfood
 
 WORKDIR /usr/src/fastfood
 
-COPY . .
+COPY ./pyproject.toml .
+
+COPY ./poetry.lock .
+
+RUN touch /usr/src/RUN_IN_DOCKER
 
 RUN poetry install

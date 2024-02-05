@@ -20,7 +20,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 def get_redis_pool():
-    return redis.from_url(settings.REDIS_DB, decode_responses=False)
+    return redis.from_url(settings.REDIS_URL, decode_responses=False)
 
 
 async def get_async_redis_client(

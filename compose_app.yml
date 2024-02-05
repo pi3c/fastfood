@@ -1,5 +1,19 @@
 version: "3.8"
 services:
+  redis:
+    container_name: redis_test
+
+    image: redis:7.2.4-alpine3.19
+
+    ports:
+      - '6380:6379'
+
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   db:
     container_name: pgdb
 
@@ -37,6 +51,8 @@ services:
 
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
     restart: always
