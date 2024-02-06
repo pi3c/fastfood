@@ -50,13 +50,13 @@ class MenuRepository:
         self,
         menu_id: UUID,
         menu: schemas.MenuBase,
-    ) -> Menu:
+    ) -> Menu | None:
         query = update(Menu).where(Menu.id == menu_id).values(**menu.model_dump())
         await self.db.execute(query)
         await self.db.commit()
         qr = select(Menu).where(Menu.id == menu_id)
         updated_menu = await self.db.execute(qr)
-        return updated_menu.scalar_one()
+        return updated_menu.scalar_one_or_none()
 
     async def delete_menu_item(self, menu_id: UUID) -> None:
         query = delete(Menu).where(Menu.id == menu_id)

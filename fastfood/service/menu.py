@@ -87,8 +87,10 @@ class MenuService:
         )
         return menu
 
-    async def update_menu(self, menu_id: UUID, menu_data) -> MenuRead:
+    async def update_menu(self, menu_id: UUID, menu_data) -> MenuRead | None:
         data = await self.menu_repo.update_menu_item(menu_id, menu_data)
+        if data is None:
+            return None
         menu = data.__dict__
         menu = {k: v for k, v in menu.items() if not k.startswith('_')}
         dishes_conter = 0

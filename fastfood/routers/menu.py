@@ -11,7 +11,13 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=list[MenuRead])
+@router.get(
+    '/',
+    status_code=200,
+    response_model=list[MenuRead],
+    summary='Получить список меню',
+    description='Этот метод позволяет получить все меню.',
+)
 async def get_menus(
     menu: MenuService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
@@ -19,7 +25,13 @@ async def get_menus(
     return await menu.read_menus()
 
 
-@router.post('/', status_code=201, response_model=MenuRead)
+@router.post(
+    '/',
+    status_code=201,
+    response_model=MenuRead,
+    summary='Создать меню',
+    description='Этот метод позволяет создать меню',
+)
 async def add_menu(
     menu: MenuBase,
     responce: MenuService = Depends(),
@@ -28,7 +40,18 @@ async def add_menu(
     return await responce.create_menu(menu)
 
 
-@router.get('/{menu_id}', response_model=MenuRead)
+@router.get(
+    '/{menu_id}',
+    response_model=MenuRead,
+    summary='Получить меню',
+    description='Этот метод позволяет получить меню по его UUID',
+    responses={
+        404: {
+            'description': 'Menu not found',
+            'content': {'application/json': {'example': {'detail': 'sting'}}},
+        },
+    },
+)
 async def get_menu(
     menu_id: UUID,
     responce: MenuService = Depends(),
@@ -37,11 +60,25 @@ async def get_menu(
     result = await responce.read_menu(menu_id=menu_id)
 
     if not result:
-        raise HTTPException(status_code=404, detail='menu not found')
+        raise HTTPException(
+            status_code=404,
+            detail=f'Меню c UUID={menu_id} не существует, доступ невозможен',
+        )
     return result
 
 
-@router.patch('/{menu_id}', response_model=MenuRead)
+@router.patch(
+    '/{menu_id}',
+    response_model=MenuRead,
+    summary='Обновить меню',
+    description='Этот метод позволяет изменить меню по его UUID',
+    responses={
+        404: {
+            'description': 'Menu not found',
+            'content': {'application/json': {'example': {'detail': 'string'}}},
+        },
+    },
+)
 async def update_menu(
     menu_id: UUID,
     menu: MenuBase,
@@ -52,10 +89,21 @@ async def update_menu(
         menu_id=menu_id,
         menu_data=menu,
     )
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Меню c UUID={menu_id} не существует, Обновление невозможно',
+        )
+
     return result
 
 
-@router.delete('/{menu_id}')
+@router.delete(
+    '/{menu_id}',
+    status_code=200,
+    summary='Удалить меню',
+    description='Этот метод позволяет удалить меню по его UUID',
+)
 async def delete_menu(
     menu_id: UUID,
     menu: MenuService = Depends(),

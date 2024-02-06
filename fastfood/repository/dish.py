@@ -49,13 +49,13 @@ class DishRepository:
         submenu_id: UUID,
         dish_id: UUID,
         dish_data: Dish_db,
-    ) -> Dish:
+    ) -> Dish | None:
         query = update(Dish).where(Dish.id == dish_id).values(**dish_data.model_dump())
         await self.db.execute(query)
         await self.db.commit()
         qr = select(Dish).where(Dish.id == dish_id)
         updated_submenu = await self.db.execute(qr)
-        return updated_submenu.scalars().one()
+        return updated_submenu.scalar_one_or_none()
 
     async def delete_dish_item(
         self,

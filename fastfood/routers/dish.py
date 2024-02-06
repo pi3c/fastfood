@@ -11,7 +11,13 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=list[Dish])
+@router.get(
+    '/',
+    response_model=list[Dish],
+    summary='Получить список блюд',
+    description='Этот метод позволяет получить список всех блюда по UUID'
+    ' родительских меню и подменю',
+)
 async def get_dishes(
     menu_id: UUID,
     submenu_id: UUID,
@@ -22,7 +28,14 @@ async def get_dishes(
     return result
 
 
-@router.post('/', status_code=201, response_model=Dish)
+@router.post(
+    '/',
+    status_code=201,
+    response_model=Dish,
+    summary='Создать блюдо',
+    description='Этот метод позволяет создать блюдо по UUID'
+    'его родительских меню и подменю',
+)
 async def create_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -37,7 +50,19 @@ async def create_dish(
     )
 
 
-@router.get('/{dish_id}', response_model=Dish)
+@router.get(
+    '/{dish_id}',
+    response_model=Dish,
+    summary='Получить блюдо',
+    description='Этот метод позволяет получить блюдо по его UUID'
+    ' и UUID его родительских меню',
+    responses={
+        404: {
+            'description': 'Dish not found',
+            'content': {'application/json': {'example': {'detail': 'string'}}},
+        },
+    },
+)
 async def get_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -51,11 +76,26 @@ async def get_dish(
         dish_id,
     )
     if not result:
-        raise HTTPException(status_code=404, detail='dish not found')
+        raise HTTPException(
+            status_code=404,
+            detail=f'Блюдо c UUID={dish_id} не существует, доступ невозможен',
+        )
     return result
 
 
-@router.patch('/{dish_id}', response_model=Dish)
+@router.patch(
+    '/{dish_id}',
+    response_model=Dish,
+    summary='Обновить блюдо',
+    description='Этот метод позволяет обновить блюдо по его UUID'
+    ' и UUID родительских меню',
+    responses={
+        404: {
+            'description': 'Dish not found',
+            'content': {'application/json': {'example': {'detail': 'string'}}},
+        },
+    },
+)
 async def update_dish(
     menu_id: UUID,
     submenu_id: UUID,
@@ -70,10 +110,20 @@ async def update_dish(
         dish_id,
         dish_data,
     )
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Блюдо c UUID={dish_id} не существует, обновление невозможно',
+        )
     return result
 
 
-@router.delete('/{dish_id}')
+@router.delete(
+    '/{dish_id}',
+    summary='Удалить блюдо',
+    description='Этот метод позволяет удалить блюдо по его UUID'
+    ' и UUID родительских меню',
+)
 async def delete_dish(
     menu_id: UUID,
     submenu_id: UUID,

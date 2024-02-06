@@ -31,7 +31,7 @@ class RedisRepository:
         pool: redis.Redis = Depends(get_redis_pool),
     ) -> None:
         self.pool = pool
-        self.ttl = 2
+        self.ttl = 1800
 
     async def get(self, key: str) -> Any | None:
         data = await self.pool.get(key)

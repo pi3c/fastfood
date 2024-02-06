@@ -89,14 +89,18 @@ class SubmenuService:
 
     async def update_submenu(
         self, menu_id: UUID, submenu_id: UUID, submenu_data: MenuBase
-    ) -> SubMenuRead:
+    ) -> SubMenuRead | None:
         data = await self.submenu_repo.update_submenu_item(
             menu_id, submenu_id, submenu_data
         )
+        if data is None:
+            return None
+
         submenu = data.__dict__
         submenu = {k: v for k, v in submenu.items() if not k.startswith('_')}
         submenu['dishes_count'] = len(submenu.pop('dishes'))
         submenu = SubMenuRead(**submenu)
+
         await self.cache.set(
             self.key('submenu', menu_id=str(menu_id), submenu_id=str(submenu_id)),
             submenu,

@@ -1,9 +1,31 @@
 import asyncio
+import json
 import sys
 
 import uvicorn
+from fastapi.openapi.utils import get_openapi
 
+from fastfood.app import create_app
 from fastfood.repository import create_db_and_tables
+
+
+def create_openapi():
+    app = create_app()
+
+    with open('openapi.json', 'w') as f:
+        json.dump(
+            get_openapi(
+                title=app.title,
+                version=app.version,
+                openapi_version=app.openapi_version,
+                description=app.description,
+                routes=app.routes,
+                contact=app.contact,
+                license_info=app.license_info,
+                tags=app.openapi_tags,
+            ),
+            f,
+        )
 
 
 def run_app():
@@ -32,3 +54,6 @@ if __name__ == '__main__':
     if '--run-test-server' in sys.argv:
         asyncio.run(recreate())
         run_app()
+
+    if 'dump' in sys.argv:
+        create_openapi()

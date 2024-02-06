@@ -103,14 +103,19 @@ class DishService:
 
     async def update_dish(
         self, menu_id: UUID, submenu_id: UUID, dish_id, dish_data: DishBase
-    ) -> Dish:
+    ) -> Dish | None:
         dish_db = Dish_db(**dish_data.model_dump())
         data = await self.dish_repo.update_dish_item(
             menu_id, submenu_id, dish_id, dish_db
         )
+
+        if data is None:
+            return None
+
         dish = data.__dict__
         dish['price'] = str(dish['price'])
         dish = Dish(**dish)
+
         await self.cache.set(
             self.key(
                 'dish',

@@ -59,7 +59,7 @@ class SubMenuRepository:
         menu_id: UUID,
         submenu_id: UUID,
         submenu_data: MenuBase,
-    ) -> SubMenu:
+    ) -> SubMenu | None:
         query = (
             update(SubMenu)
             .where(SubMenu.id == submenu_id)
@@ -69,7 +69,7 @@ class SubMenuRepository:
         await self.db.commit()
         qr = select(SubMenu).where(SubMenu.id == submenu_id)
         updated_submenu = await self.db.execute(qr)
-        return updated_submenu.scalar_one()
+        return updated_submenu.scalar_one_or_none()
 
     async def delete_submenu_item(self, menu_id: UUID, submenu_id: UUID) -> None:
         query = delete(SubMenu).where(
