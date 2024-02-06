@@ -104,8 +104,7 @@ class MenuService:
         await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
         return menu
 
-    async def del_menu(self, menu_id: UUID):
-        data = await self.menu_repo.delete_menu_item(menu_id)
+    async def del_menu(self, menu_id: UUID) -> None:
+        await self.menu_repo.delete_menu_item(menu_id)
         await self.cache.delete(key=str(menu_id), bg_task=self.bg_tasks)
         await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
-        return data

@@ -11,7 +11,7 @@ from fastfood.models import Dish, Menu, SubMenu
 
 
 class MenuRepository:
-    def __init__(self, session: AsyncSession = Depends(get_async_session)):
+    def __init__(self, session: AsyncSession = Depends(get_async_session)) -> None:
         self.db = session
 
     async def get_menus(self) -> list[Menu]:
@@ -44,8 +44,6 @@ class MenuRepository:
         )
         menu = await self.db.execute(query)
         menu = menu.scalars().one_or_none()
-        if menu is None:
-            return None
         return menu
 
     async def update_menu_item(
@@ -60,7 +58,7 @@ class MenuRepository:
         updated_menu = await self.db.execute(qr)
         return updated_menu.scalar_one()
 
-    async def delete_menu_item(self, menu_id: UUID):
+    async def delete_menu_item(self, menu_id: UUID) -> None:
         query = delete(Menu).where(Menu.id == menu_id)
         await self.db.execute(query)
         await self.db.commit()

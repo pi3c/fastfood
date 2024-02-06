@@ -106,8 +106,8 @@ class SubmenuService:
 
         return submenu
 
-    async def del_menu(self, menu_id: UUID, submenu_id: UUID) -> int:
-        code = await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
+    async def del_menu(self, menu_id: UUID, submenu_id: UUID) -> None:
+        await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
         await self.cache.delete(
             key=self.key(
                 'submenu',
@@ -117,4 +117,3 @@ class SubmenuService:
             bg_task=self.bg_tasks,
         )
         await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
-        return code

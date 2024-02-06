@@ -10,7 +10,7 @@ from fastfood.schemas import Dish_db
 
 
 class DishRepository:
-    def __init__(self, session: AsyncSession = Depends(get_async_session)):
+    def __init__(self, session: AsyncSession = Depends(get_async_session)) -> None:
         self.db = session
 
     async def get_dishes(self, menu_id: UUID, submenu_id: UUID) -> list[Dish]:
@@ -62,8 +62,7 @@ class DishRepository:
         menu_id: UUID,
         submenu_id: UUID,
         dish_id: UUID,
-    ) -> int:
+    ) -> None:
         query = delete(Dish).where(Dish.id == dish_id)
         await self.db.execute(query)
         await self.db.commit()
-        return 200

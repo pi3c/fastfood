@@ -125,13 +125,11 @@ class DishService:
 
         return dish
 
-    async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID) -> int:
-        response = await self.dish_repo.delete_dish_item(
+    async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID) -> None:
+        await self.dish_repo.delete_dish_item(
             menu_id,
             submenu_id,
             dish_id,
         )
         await self.cache.delete(key=str(menu_id), bg_task=self.bg_tasks)
         await self.cache.invalidate(key=str(menu_id), bg_task=self.bg_tasks)
-
-        return response
