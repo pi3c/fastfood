@@ -29,7 +29,7 @@ async def create_dish(
     dish_data: DishBase,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-):
+) -> Dish:
     return await dish.create_dish(
         menu_id,
         submenu_id,
@@ -44,7 +44,7 @@ async def get_dish(
     dish_id: UUID,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-):
+) -> Dish:
     result = await dish.read_dish(
         menu_id,
         submenu_id,
@@ -63,7 +63,7 @@ async def update_dish(
     dish_data: DishBase,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-):
+) -> Dish:
     result = await dish.update_dish(
         menu_id,
         submenu_id,
@@ -80,5 +80,5 @@ async def delete_dish(
     dish_id: UUID,
     dish: DishService = Depends(),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-):
+) -> None:
     await dish.del_dish(menu_id, submenu_id, dish_id)
