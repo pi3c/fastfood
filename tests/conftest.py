@@ -52,6 +52,6 @@ async def client(event_loop) -> AsyncGenerator[AsyncClient, None]:
 
     async with AsyncClient(
         app=app,
-        base_url='http://localhost:8000/api/v1/menus',
+        base_url='http://localhost:8000',
     ) as async_client:
         yield async_client
