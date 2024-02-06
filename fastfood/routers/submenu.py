@@ -14,9 +14,6 @@ router = APIRouter(
 @router.get(
     '/',
     response_model=list[SubMenuRead],
-    summary='Получить список подменю',
-    description='Этот метод позволяет получить список подменю основного меню'
-    ' по UUID меню',
 )
 async def get_submenus(
     menu_id: UUID,
@@ -31,8 +28,6 @@ async def get_submenus(
     '/',
     status_code=201,
     response_model=SubMenuRead,
-    summary='Создать подменю',
-    description='Этот метод позволяет создать подменю по UUID родителского меню',
 )
 async def create_submenu_item(
     menu_id: UUID,
@@ -50,15 +45,6 @@ async def create_submenu_item(
 @router.get(
     '/{submenu_id}',
     response_model=SubMenuRead,
-    summary='Получить подменю',
-    description='Этот метод позволяет получить подменю по его UUID'
-    ' и UUID родительского меню',
-    responses={
-        404: {
-            'description': 'Submenu not found',
-            'content': {'application/json': {'example': {'detail': 'string'}}},
-        },
-    },
 )
 async def get_submenu(
     menu_id: UUID,
@@ -81,15 +67,6 @@ async def get_submenu(
 @router.patch(
     '/{submenu_id}',
     response_model=SubMenuRead,
-    summary='Обновить подменю',
-    description='Этот метод позволяет обновить подменю по его UUID'
-    ' и UUID родительского меню',
-    responses={
-        404: {
-            'description': 'Submenu not found',
-            'content': {'application/json': {'example': {'detail': 'string'}}},
-        },
-    },
 )
 async def update_submenu(
     menu_id: UUID,
@@ -114,8 +91,6 @@ async def update_submenu(
 
 @router.delete(
     '/{submenu_id}',
-    summary='Удалить подменю',
-    description='Этот метод позволяет удалить подменю по его UUID',
 )
 async def delete_submenu(
     menu_id: UUID,

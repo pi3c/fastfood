@@ -15,8 +15,6 @@ router = APIRouter(
     '/',
     status_code=200,
     response_model=list[MenuRead],
-    summary='Получить список меню',
-    description='Этот метод позволяет получить все меню.',
 )
 async def get_menus(
     menu: MenuService = Depends(),
@@ -29,8 +27,6 @@ async def get_menus(
     '/',
     status_code=201,
     response_model=MenuRead,
-    summary='Создать меню',
-    description='Этот метод позволяет создать меню',
 )
 async def add_menu(
     menu: MenuBase,
@@ -43,14 +39,6 @@ async def add_menu(
 @router.get(
     '/{menu_id}',
     response_model=MenuRead,
-    summary='Получить меню',
-    description='Этот метод позволяет получить меню по его UUID',
-    responses={
-        404: {
-            'description': 'Menu not found',
-            'content': {'application/json': {'example': {'detail': 'sting'}}},
-        },
-    },
 )
 async def get_menu(
     menu_id: UUID,
@@ -70,14 +58,6 @@ async def get_menu(
 @router.patch(
     '/{menu_id}',
     response_model=MenuRead,
-    summary='Обновить меню',
-    description='Этот метод позволяет изменить меню по его UUID',
-    responses={
-        404: {
-            'description': 'Menu not found',
-            'content': {'application/json': {'example': {'detail': 'string'}}},
-        },
-    },
 )
 async def update_menu(
     menu_id: UUID,
@@ -101,8 +81,6 @@ async def update_menu(
 @router.delete(
     '/{menu_id}',
     status_code=200,
-    summary='Удалить меню',
-    description='Этот метод позволяет удалить меню по его UUID',
 )
 async def delete_menu(
     menu_id: UUID,
