@@ -34,3 +34,11 @@ class Dish(DishBase, Menu):
 
 class Dish_db(MenuBase):
     price: float
+
+
+class SubMenuSummary(Menu):
+    dishes: list[Dish_db]
+
+
+class MenuSummary(Menu):
+    submenus: list[SubMenuSummary]

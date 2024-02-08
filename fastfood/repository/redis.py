@@ -63,3 +63,4 @@ class RedisRepository:
     async def invalidate(self, key: str, bg_task: BackgroundTasks) -> None:
         await self.clear_cache(f'{key}*', bg_task)
         await self.clear_cache(f'{get_key("menus")}*', bg_task)
+        await self.clear_cache('summary', bg_task)
