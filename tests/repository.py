@@ -186,3 +186,11 @@ class Repository:
                 ),
             )
             return response.status_code
+
+    class Summary:
+        @staticmethod
+        async def read_summary(ac: AsyncClient) -> tuple[int, dict]:
+            """чтение summary"""
+
+            response: Response = await ac.get(reverse('get_summary'))
+            return response.status_code, response.json()
