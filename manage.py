@@ -42,10 +42,6 @@ async def recreate() -> None:
 
 
 if __name__ == '__main__':
-    if '--run-celery' in sys.argv:
-        celery_worker_process.start()
-        celery_beat_process.start()
-
     if '--run-docker-server' in sys.argv:
         loop.run_until_complete(recreate())
         loop.run_until_complete(run_app())

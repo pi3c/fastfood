@@ -62,8 +62,8 @@ services:
 
     command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-docker-server'
 
-  celery:
-    container_name: celery
+  celery_worker:
+    container_name: celeryworker
 
     build:
       context: .
@@ -80,7 +80,28 @@ services:
     volumes:
       - .:/usr/src/fastfood
 
-    command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-selery'
+    command: ["celery", "-A", "bg_tasks.bg_task:celery_app", "worker", "--loglevel=info", "--concurrency", "1", "-P", "solo"]
+
+  celery_beat:
+    container_name: celerybeat
+
+    build:
+      context: .
+
+    env_file:
+      - .env
+
+    depends_on:
+      - rabbitmq
+      - db
+      - app
+      - redis
+
+    volumes:
+      - .:/usr/src/fastfood
+
+    command: ["celery", "-A", "bg_tasks.bg_task:celery_app", "beat", "--loglevel=info"]
+
 
   rabbitmq:
     container_name: rabbit
