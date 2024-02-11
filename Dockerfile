@@ -8,7 +8,11 @@ RUN mkdir -p /usr/src/fastfood
 
 WORKDIR /usr/src/fastfood
 
-COPY . .
+COPY ./example.env .
+
+COPY ./poetry.lock .
+
+COPY ./pyproject.toml .
 
 RUN touch /usr/src/RUN_IN_DOCKER
 
