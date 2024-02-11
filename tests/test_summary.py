@@ -12,17 +12,13 @@ async def test_summary_with_menu(client: AsyncClient) -> None:
     assert rspn == []
 
     # Создаем меню и проверяем ответ
-    menu = {
-        'title': 'Menu',
-        'description': 'main menu',
-    }
+    menu = {'title': 'Menu', 'description': 'main menu', 'submenus': []}
     code, rspn = await Repo.Menu.write(client, menu)
     menu.update(rspn)
 
     # Удалим ненужные ключи, тк в модели они не используются
     del menu['submenus_count']
     del menu['dishes_count']
-    menu.__setattr__('submenus', list())
 
     # Проверяем summary c меню
     code, rspn = await Repo.Summary.read_summary(client)
@@ -36,30 +32,30 @@ async def test_summary_with_menu(client: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_summary_with_submenus(client: AsyncClient) -> None:
     # Создаем меню и проверяем ответ
-    menu = {
+    menu: dict[str, str | list | float] = {
         'title': 'Menu',
         'description': 'main menu',
+        'submenus': [],
     }
     code, rspn = await Repo.Menu.write(client, menu)
     menu.update(rspn)
 
     del menu['submenus_count']
     del menu['dishes_count']
-    menu.__setattr__('submenus', list())
 
     # Создаем и проверяем подменю
-    submenu = {
+    submenu: dict[str, str | list | float] = {
         'title': 'Submenu',
         'description': 'submenu',
         'parent_menu': menu['id'],
+        'dishes': list(),
     }
     code, rspn = await Repo.Submenu.write(client, menu, submenu)
     submenu.update(rspn)
-    submenu.__setattr__('dishes', list())
     del submenu['dishes_count']
     del submenu['parent_menu']
 
-    menu.__setattr__('submenus', [submenu])
+    menu['submenus'] = [submenu]
 
     # Получаем блюдо
     code, rspn = await Repo.Summary.read_summary(client)
@@ -72,26 +68,26 @@ async def test_summary_with_submenus(client: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_summary_with_dishes(client: AsyncClient) -> None:
     # Создаем меню и проверяем ответ
-    menu = {
+    menu: dict[str, str | list | float] = {
         'title': 'Menu',
         'description': 'main menu',
+        'submenus': [],
     }
     code, rspn = await Repo.Menu.write(client, menu)
     menu.update(rspn)
 
     del menu['submenus_count']
     del menu['dishes_count']
-    menu.__setattr__('submenus', list())
 
     # Создаем и проверяем подменю
-    submenu = {
+    submenu: dict[str, str | list | float] = {
         'title': 'Submenu',
         'description': 'submenu',
         'parent_menu': menu['id'],
+        'dishes': [],
     }
     code, rspn = await Repo.Submenu.write(client, menu, submenu)
     submenu.update(rspn)
-    submenu.__setattr__('dishes', list())
     del submenu['dishes_count']
     del submenu['parent_menu']
 
@@ -107,8 +103,8 @@ async def test_summary_with_dishes(client: AsyncClient) -> None:
     del dish['parent_submenu']
     del dish['id']
 
-    submenu.__setattr__('dishes', dish)
-    menu.__setattr__('submenus', submenu)
+    submenu['dishes'] = [dish]
+    menu['submenus'] = [submenu]
 
     code, rspn = await Repo.Summary.read_summary(client)
     assert code == 200

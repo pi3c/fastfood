@@ -75,7 +75,7 @@ class Settings(BaseSettings):
         if os.path.exists(file_path):
             return 'amqp://guest:guest@rabbitmq'
 
-        # return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}'
 
     model_config = SettingsConfigDict(env_file='.env')
 
