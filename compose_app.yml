@@ -57,4 +57,35 @@ services:
 
     restart: always
 
+    volumes:
+      - .:/usr/src/fastfood
+
     command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-test-server'
+
+  celery:
+    container_name: celery
+
+    build:
+      context: .
+
+    env_file:
+      - .env
+
+    depends_on:
+      - rabbitmq
+      - db
+      - app
+      - redis
+
+    volumes:
+      - .:/usr/src/fastfood
+
+    command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-selery'
+
+  rabbitmq:
+    container_name: rabbit
+
+    image: "rabbitmq:management"
+
+    ports:
+      - 5672:5672

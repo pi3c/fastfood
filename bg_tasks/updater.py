@@ -12,7 +12,9 @@ from fastfood.models import Dish, Menu, SubMenu
 
 file = os.path.join(os.path.curdir, 'admin', 'Menu.xlsx')
 
-redis = redis.Redis(host='127.0.0.1', port=6379, db=0)
+redis = redis.Redis(
+    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
+)
 
 async_engine = create_async_engine(settings.DATABASE_URL_asyncpg)
 async_session_maker = async_sessionmaker(
@@ -22,7 +24,10 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def refresh_cache(disconts: dict):
+async def refresh_cache(disconts: dict) -> None:
+    """Очищает кэш при обновлении БД и ставит отметку времени обновления
+    и сохраняет данные скидок на товар
+    """
     await redis.flushall()
 
     for key in disconts.keys():
@@ -50,7 +55,6 @@ async def is_changed_xls() -> bool:
 
 async def xlsx_to_dict() -> dict:
     """Парсит Menu.xlsx в словарь"""
-    print('run dumping xlsx_to_dict')
     wb = openpyxl.load_workbook(file).worksheets[0]
 
     data = {}
@@ -89,7 +93,9 @@ async def xlsx_to_dict() -> dict:
 
 
 async def refresh_all_data(data: dict) -> dict[UUID, int | float]:
-    """Чистит кэш удаляем старые данные и пушим новые"""
+    """Удаляет старые данные и сохраняет новые.
+    Создает и возвращает список со скидками с привязкой по UUID товара
+    """
 
     disconts = {}
 
@@ -133,10 +139,10 @@ async def refresh_all_data(data: dict) -> dict[UUID, int | float]:
         return disconts
 
 
-async def main():
+async def main() -> None:
+    """Главная функция фоновой задачи"""
     changed = await is_changed_xls()
     if changed:
-        print('Файл изменен, обновляю базу')
         menu_data = await xlsx_to_dict()
         discont_data = await refresh_all_data(menu_data)
         await refresh_cache(discont_data)

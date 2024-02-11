@@ -42,6 +42,10 @@ async def recreate() -> None:
 
 
 if __name__ == '__main__':
+    if '--run-celery' in sys.argv:
+        celery_worker_process.start()
+        celery_beat_process.start()
+
     if '--run-server' in sys.argv:
         pass
 
