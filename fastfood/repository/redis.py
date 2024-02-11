@@ -22,7 +22,7 @@ def get_key(level: str, **kwargs) -> str:
         case 'dish':
             return f"{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}:{kwargs.get('dish_id')}"
 
-    return 'abracadabra'
+    return 'summary'
 
 
 class RedisRepository:
