@@ -1,12 +1,28 @@
 import asyncio
+import multiprocessing
 import sys
+from subprocess import Popen
 
 import uvicorn
 
 from fastfood.repository import create_db_and_tables
 
+loop = asyncio.get_event_loop()
 
-def run_app():
+
+def start_celery_worker():
+    Popen(['celery', '-A', 'bg_tasks.bg_task.celery_app', 'worker', '--loglevel=info'])
+
+
+def start_celery_beat():
+    Popen(['celery', '-A', 'bg_tasks.bg_task.celery_app', 'beat', '--loglevel=info'])
+
+
+celery_worker_process = multiprocessing.Process(target=start_celery_worker)
+celery_beat_process = multiprocessing.Process(target=start_celery_beat)
+
+
+async def run_app():
     """
     Запуск FastAPI
     """
@@ -27,8 +43,14 @@ async def recreate():
 
 if __name__ == '__main__':
     if '--run-server' in sys.argv:
-        run_app()
+        pass
 
     if '--run-test-server' in sys.argv:
-        asyncio.run(recreate())
-        run_app()
+        celery_worker_process.start()
+        celery_beat_process.start()
+
+        loop.run_until_complete(recreate())
+        loop.run_until_complete(run_app())
+
+        celery_beat_process.kill()
+        celery_worker_process.kill()
