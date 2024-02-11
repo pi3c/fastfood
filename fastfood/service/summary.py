@@ -20,29 +20,53 @@ class SummaryService:
         self.bg_tasks = background_tasks
 
     async def read_data(self):
-        def dump_to_schema(schema, obj):
+
+        result = []
+
+        async def dump_to_schema(
+            schema, obj
+        ) -> MenuSummary | SubMenuSummary | DishBase:
+            """Функция преобразует объект SQLAlchemy к Pydantic модели
+
+            Входящие параметры
+                schema: Pydantic модель
+                obj: ORM объект
+
+            Возвращаемые данные
+                schema: MenuSummary | SubMenuSummary | DishBase
+            """
             obj = obj.__dict__
             obj = {k: v for k, v in obj.items() if not k.startswith('_')}
+
             if 'price' in obj.keys():
+                discont = await self.cache.get(f"DISCONT:{str(obj.get('id'))}")
+
+                if discont is not None:
+                    discont = float(discont)
+                    obj['price'] = round(
+                        obj['price'] - (obj['price'] * discont / 100), 2
+                    )
                 obj['price'] = str(obj['price'])
+
             return schema(**obj)
 
         cached_data = await self.cache.get(self.key('summary'))
+
         if cached_data is not None:
             return cached_data
 
-        result = []
         data = await self.sum_repo.get_data()
+
         for menu in data:
-            menus_res = dump_to_schema(MenuSummary, menu)
+            menus_res = await dump_to_schema(MenuSummary, menu)
             menus_res.submenus = []
 
             for sub in menu.submenus:
-                sub_res = dump_to_schema(SubMenuSummary, sub)
+                sub_res = await dump_to_schema(SubMenuSummary, sub)
                 sub_res.dishes = []
 
                 for dish in sub.dishes:
-                    dish_res = dump_to_schema(DishBase, dish)
+                    dish_res = await dump_to_schema(DishBase, dish)
                     sub_res.dishes.append(dish_res)
 
                 menus_res.submenus.append(sub_res)

@@ -10,11 +10,11 @@ from fastfood.repository import create_db_and_tables
 loop = asyncio.get_event_loop()
 
 
-def start_celery_worker():
+def start_celery_worker() -> None:
     Popen(['celery', '-A', 'bg_tasks.bg_task.celery_app', 'worker', '--loglevel=info'])
 
 
-def start_celery_beat():
+def start_celery_beat() -> None:
     Popen(['celery', '-A', 'bg_tasks.bg_task.celery_app', 'beat', '--loglevel=info'])
 
 
@@ -22,7 +22,7 @@ celery_worker_process = multiprocessing.Process(target=start_celery_worker)
 celery_beat_process = multiprocessing.Process(target=start_celery_beat)
 
 
-async def run_app():
+async def run_app() -> None:
     """
     Запуск FastAPI
     """
@@ -36,7 +36,7 @@ async def run_app():
     )
 
 
-async def recreate():
+async def recreate() -> None:
     """Удаление и создание таблиц в базе данных для тестирования"""
     await create_db_and_tables()
 
