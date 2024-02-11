@@ -46,10 +46,11 @@ if __name__ == '__main__':
         celery_worker_process.start()
         celery_beat_process.start()
 
-    if '--run-server' in sys.argv:
-        pass
+    if '--run-docker-server' in sys.argv:
+        loop.run_until_complete(recreate())
+        loop.run_until_complete(run_app())
 
-    if '--run-test-server' in sys.argv:
+    if '--run-local-server' in sys.argv:
         celery_worker_process.start()
         celery_beat_process.start()
 
