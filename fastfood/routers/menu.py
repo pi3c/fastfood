@@ -50,7 +50,7 @@ async def get_menu(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Меню c UUID={menu_id} не существует, доступ невозможен',
+            detail='menu not found',
         )
     return result
 
@@ -72,7 +72,7 @@ async def update_menu(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Меню c UUID={menu_id} не существует, Обновление невозможно',
+            detail='menu not found',
         )
 
     return result

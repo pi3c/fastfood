@@ -63,7 +63,7 @@ async def get_dish(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Блюдо c UUID={dish_id} не существует, доступ невозможен',
+            detail='dish not found',
         )
     return result
 
@@ -89,7 +89,7 @@ async def update_dish(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Блюдо c UUID={dish_id} не существует, обновление невозможно',
+            detail='dish not found',
         )
     return result
 

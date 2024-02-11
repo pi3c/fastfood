@@ -59,7 +59,7 @@ async def get_submenu(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Подменю c UUID={submenu_id} не существует, доступ невозможен',
+            detail='submenu not found',
         )
     return result
 
@@ -83,7 +83,7 @@ async def update_submenu(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail=f'Gjlvеню c UUID={submenu_id} не существует, обновление невозможно',
+            detail='submenu not found',
         )
 
     return result
