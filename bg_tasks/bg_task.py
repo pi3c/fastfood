@@ -22,12 +22,7 @@ celery_app.conf.beat_schedule = {
 }
 
 
-celery_task_app = Celery(
-    'tasks', broker='amqp://guest:guest@localhost', backend='rpc://'
-)
-
-
-@celery_task_app.task
+@celery_app.task
 def periodic_task() -> None:
     result = loop.run_until_complete(main())
     return result

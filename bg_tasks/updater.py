@@ -26,7 +26,7 @@ async def refresh_cache(disconts: dict):
     await redis.flushall()
 
     for key in disconts.keys():
-        await redis.set(f'DISCONT:{str(key)}', disconts[key])
+        await redis.set(f'DISCONT:{str(key)}', pickle.dumps(disconts[key]))
 
     await redis.set('XLSX_MOD_TIME', pickle.dumps(os.path.getmtime(file)))
 

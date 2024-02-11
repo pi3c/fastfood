@@ -3,6 +3,7 @@ from uuid import UUID
 import redis.asyncio as redis  # type: ignore
 from fastapi import BackgroundTasks, Depends
 
+from fastfood import models
 from fastfood.dbase import get_async_redis_client
 from fastfood.repository.dish import DishRepository
 from fastfood.repository.redis import RedisRepository, get_key
@@ -21,6 +22,19 @@ class DishService:
         self.bg_tasks = background_tasks
         self.key = get_key
 
+    async def _get_discont(self, dish) -> dict:
+        discont = await self.cache.get(f"DISCONT:{str(dish.get('id'))}")
+        if discont is not None:
+            discont = float(discont)
+            dish['price'] = round(dish['price'] - (dish['price'] * discont / 100), 2)
+        return dish
+
+    async def _convert_dish_to_dict(self, row: models.Dish) -> Dish:
+        dish = row.__dict__
+        dish = await self._get_discont(dish)
+        dish['price'] = str(dish['price'])
+        return Dish(**dish)
+
     async def read_dishes(self, menu_id: UUID, submenu_id: UUID) -> list[Dish]:
         cached_dishes = await self.cache.get(
             self.key('dishes', menu_id=str(menu_id), submenu_id=str(submenu_id))
@@ -31,9 +45,9 @@ class DishService:
         data = await self.dish_repo.get_dishes(menu_id, submenu_id)
         response = []
         for row in data:
-            dish = row.__dict__
-            dish['price'] = str(dish['price'])
-            response.append(Dish(**dish))
+            dish = await self._convert_dish_to_dict(row)
+            response.append(dish)
+
         await self.cache.set(
             self.key(
                 'dishes',
@@ -57,9 +71,7 @@ class DishService:
             submenu_id,
             dish_db,
         )
-        dish = data.__dict__
-        dish['price'] = str(dish['price'])
-        dish = Dish(**dish)
+        dish = await self._convert_dish_to_dict(data)
         await self.cache.set(
             self.key('dish', menu_id=str(menu_id), submenu_id=str(submenu_id)),
             dish,
@@ -86,9 +98,8 @@ class DishService:
         data = await self.dish_repo.get_dish_item(menu_id, submenu_id, dish_id)
         if data is None:
             return None
-        dish = data.__dict__
-        dish['price'] = str(dish['price'])
-        dish = Dish(**dish)
+        dish = await self._convert_dish_to_dict(data)
+
         await self.cache.set(
             self.key(
                 'dish',
@@ -112,9 +123,7 @@ class DishService:
         if data is None:
             return None
 
-        dish = data.__dict__
-        dish['price'] = str(dish['price'])
-        dish = Dish(**dish)
+        dish = await self._convert_dish_to_dict(data)
 
         await self.cache.set(
             self.key(
