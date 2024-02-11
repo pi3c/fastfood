@@ -73,7 +73,7 @@ class Settings(BaseSettings):
         """
         file_path = '/usr/src/RUN_IN_DOCKER'
         if os.path.exists(file_path):
-            return 'amqp://guest:guest@localhost'
+            return 'amqp://guest:guest@rabbitmq'
 
         # return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
