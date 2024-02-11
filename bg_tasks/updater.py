@@ -12,9 +12,7 @@ from fastfood.models import Dish, Menu, SubMenu
 
 file = os.path.join(os.path.curdir, 'admin', 'Menu.xlsx')
 
-redis = redis.Redis(
-    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
-)
+redis = redis.Redis.from_url(url=settings.REDIS_URL)
 
 async_engine = create_async_engine(settings.DATABASE_URL_asyncpg)
 async_session_maker = async_sessionmaker(
