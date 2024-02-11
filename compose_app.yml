@@ -60,7 +60,7 @@ services:
     volumes:
       - .:/usr/src/fastfood
 
-    command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-test-server'
+    command: /bin/bash -c 'poetry run python /usr/src/fastfood/manage.py --run-docker-server'
 
   celery:
     container_name: celery
