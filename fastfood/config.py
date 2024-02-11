@@ -66,6 +66,17 @@ class Settings(BaseSettings):
 
         return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}'
 
+    @property
+    def REBBITMQ_URL(self):
+        """
+        Возвращает строку подключения к REBBITMQ
+        """
+        file_path = '/usr/src/RUN_IN_DOCKER'
+        if os.path.exists(file_path):
+            return 'amqp://guest:guest@localhost'
+
+        # return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
     model_config = SettingsConfigDict(env_file='.env')
 
 
