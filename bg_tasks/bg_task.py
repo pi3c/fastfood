@@ -19,7 +19,7 @@ celery_app = Celery(
 celery_app.conf.beat_schedule = {
     'run-task-every-15-seconds': {
         'task': 'bg_tasks.bg_task.periodic_task',
-        'schedule': 15.0,
+        'schedule': 30.0,
     },
 }
 
