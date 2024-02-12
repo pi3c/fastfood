@@ -43,10 +43,12 @@ async def recreate() -> None:
 
 if __name__ == '__main__':
     if '--run-docker-server' in sys.argv:
+        """Запуск FastAPI в докере. Celery запускается в отдельном контейнере"""
         loop.run_until_complete(recreate())
         loop.run_until_complete(run_app())
 
     if '--run-local-server' in sys.argv:
+        """Локальный запуск FastAPI с запуском Celery в отдельных процессах"""
         celery_worker_process.start()
         celery_beat_process.start()
 

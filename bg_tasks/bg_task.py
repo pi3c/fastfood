@@ -2,6 +2,8 @@ import asyncio
 
 from celery import Celery
 
+from fastfood.config import settings
+
 from .updater import main
 
 loop = asyncio.get_event_loop()
@@ -9,7 +11,7 @@ loop = asyncio.get_event_loop()
 
 celery_app = Celery(
     'tasks',
-    broker='amqp://guest:guest@rabbitmq',
+    broker=settings.REBBITMQ_URL,
     backend='rpc://',
     include=['bg_tasks.bg_task'],
 )
