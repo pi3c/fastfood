@@ -42,7 +42,10 @@ class SummaryService:
                 discont = await self.cache.get(f"DISCONT:{str(obj.get('id'))}")
 
                 if discont is not None:
-                    discont = float(discont)
+                    try:
+                        discont = float(discont)
+                    except Exception:
+                        discont = 0.0
                     obj['price'] = round(
                         obj['price'] - (obj['price'] * discont / 100), 2
                     )
