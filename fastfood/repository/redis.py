@@ -12,15 +12,15 @@ def get_key(level: str, **kwargs) -> str:
         case 'menus':
             return 'MENUS'
         case 'menu':
-            return f"{kwargs.get('menu_id')}"
+            return f"MENUS:{kwargs.get('menu_id')}"
         case 'submenus':
-            return f"{kwargs.get('menu_id')}:SUBMENUS"
+            return f"MENUS:{kwargs.get('menu_id')}:SUBMENUS"
         case 'submenu':
-            return f"{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}"
+            return f"MENUS:{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}"
         case 'dishes':
-            return f"{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}:DISHES"
+            return f"MENUS:{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}:DISHES"
         case 'dish':
-            return f"{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}:{kwargs.get('dish_id')}"
+            return f"MENUS:{kwargs.get('menu_id')}:{kwargs.get('submenu_id')}:{kwargs.get('dish_id')}"
 
     return 'summary'
 
