@@ -245,7 +245,7 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
 
     for key in {k: cached_dishes[k] for k in set(cached_dishes) - set(dishes)}:
         # Проверяем на удаленные меню
-        await on_submenu_change({}, cached_dishes.pop(key), session)
+        await on_dish_change({}, cached_dishes.pop(key), session)
 
     for key in dishes.keys():
         parent = cached_submenus[dishes[key]['parent_num']]['id']
@@ -271,7 +271,7 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
                 f"DISCONT:{dishes[key]['id']}", pickle.dumps(dishes[key]['discont'])
             )
 
-        await redis.set('ALL_DISHES', pickle.dumps(dishes))
+    await redis.set('ALL_DISHES', pickle.dumps(dishes))
 
 
 async def updater(rows):
