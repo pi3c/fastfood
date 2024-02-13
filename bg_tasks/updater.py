@@ -43,9 +43,8 @@ async def is_changed_xls() -> bool:
     return True
 
 
-async def on_menu_change(
-    new_menu: dict, old_menu: dict, session: AsyncSession
-) -> dict | None:
+async def on_menu_change(new_menu: dict, old_menu: dict, session: AsyncSession) -> dict:
+    """Изменение, удаление или создание меню"""
     if new_menu and not old_menu:
         # Создаем меню
         menu = Menu(
@@ -55,6 +54,7 @@ async def on_menu_change(
         session.add(menu)
         await session.flush()
         new_menu['id'] = str(menu.id)
+
     elif new_menu and old_menu:
         # Обновляем меню
         await session.execute(
@@ -67,10 +67,6 @@ async def on_menu_change(
         await session.execute(delete(Menu).where(Menu.id == old_menu['id']))
 
     await session.commit()
-    # Чистим кэш
-    await clear_cache('MENUS*')
-    await clear_cache('summary')
-
     return new_menu
 
 
@@ -110,7 +106,7 @@ async def on_submenu_change(
     new_sub: dict, old_sub: dict, session: AsyncSession
 ) -> dict:
     if new_sub and not old_sub:
-        # Создаем меню
+        # Создаем подменю
         submenu = SubMenu(
             title=new_sub['data']['title'],
             description=new_sub['data']['description'],
@@ -121,8 +117,9 @@ async def on_submenu_change(
         await session.flush()
         new_sub['id'] = str(submenu.id)
         new_sub['parent_menu'] = str(submenu.parent_menu)
+
     elif new_sub and old_sub:
-        # Обновляем меню
+        # Обновляем подменю
         await session.execute(
             update(SubMenu)
             .where(SubMenu.id == old_sub['id'])
@@ -132,11 +129,8 @@ async def on_submenu_change(
         new_sub['parent_menu'] = old_sub['parent_menu']
 
     else:
-        # Удаляем меню
+        # Удаляем подменю
         await session.execute(delete(SubMenu).where(SubMenu.id == old_sub['id']))
-
-    await clear_cache('MENUS*')
-    await clear_cache('summary')
 
     await session.commit()
     return new_sub
@@ -146,7 +140,7 @@ async def submenus_updater(submenus: dict, session: AsyncSession) -> None:
     """Проверяет пункты подменю на изменения
     При необходимости запускае обновление БД
     """
-    # Получаем Меню из кэша для получения их ID по померу в таблице
+    # Получаем меню из кэша для получения их ID по померу в таблице
     cached_menus = await redis.get('ALL_MENUS')
     if cached_menus is not None:
         cached_menus = pickle.loads(cached_menus)
@@ -204,7 +198,7 @@ async def on_dish_change(new_dish: dict, old_dish, session: AsyncSession) -> dic
         new_dish['parent_submenu'] = str(dish.parent_submenu)
         new_dish['data']['price'] = str(dish.price)
     elif new_dish and old_dish:
-        # Обновляем меню
+        # Обновляем блюдо
         await session.execute(
             update(Dish).where(Dish.id == old_dish['id']).values(**(new_dish['data']))
         )
@@ -213,11 +207,8 @@ async def on_dish_change(new_dish: dict, old_dish, session: AsyncSession) -> dic
         new_dish['data']['price'] = old_dish['data']['price']
 
     else:
-        # Удаляем меню
+        # Удаляем блюдо
         await session.execute(delete(Dish).where(Dish.id == old_dish['id']))
-
-    await clear_cache('MENUS*')
-    await clear_cache('summary')
 
     await session.commit()
     return new_dish
@@ -233,7 +224,7 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
     else:
         cached_submenus = {}
 
-    # Получаем подмен из кэша
+    # Получаем блюда из кэша
     cached_dishes = await redis.get('ALL_DISHES')
 
     if cached_dishes is not None:
@@ -244,7 +235,7 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
     await clear_cache('DISCONT*')
 
     for key in {k: cached_dishes[k] for k in set(cached_dishes) - set(dishes)}:
-        # Проверяем на удаленные меню
+        # Проверяем на удаленные блюда и обновляемся
         await on_dish_change({}, cached_dishes.pop(key), session)
 
     for key in dishes.keys():
@@ -252,13 +243,13 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
         dishes[key]['parent_submenu'] = parent
 
         if key not in cached_dishes.keys():
-            # Получаем и ставим UUID parent_menu
+            # Получаем и ставим UUID parent_submenu
             dishes[key]['parent_submenu'] = parent
 
             dish = await on_dish_change(dishes[key], {}, session)
             dishes[key] = dish
         elif key in cached_dishes.keys():
-            # Обновление меню
+            # Обновление блюда
             if dishes[key].get('data') != cached_dishes[key].get('data'):
                 dish = await on_dish_change(dishes[key], cached_dishes[key], session)
                 dishes[key] = dish
@@ -274,12 +265,15 @@ async def dishes_updater(dishes: dict, session: AsyncSession) -> None:
     await redis.set('ALL_DISHES', pickle.dumps(dishes))
 
 
-async def updater(rows):
+async def updater(rows) -> None:
     menus, submenus, dishes = await rows_to_dict(rows)
     async with async_session_maker() as session:
         await menus_updater(menus, session)
         await submenus_updater(submenus, session)
         await dishes_updater(dishes, session)
+    # Чистим кэш
+    await clear_cache('MENUS*')
+    await clear_cache('summary')
 
 
 async def main() -> None:
@@ -291,5 +285,6 @@ async def main() -> None:
 
 
 async def main_gsheets() -> None:
+    """Главная функция фоновой задачи для работы с Google"""
     rows = await gsheets_to_rows()
     await updater(rows)
