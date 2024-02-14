@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from fastfood.schemas import MenuBase, MenuRead
 from fastfood.service.menu import MenuService
@@ -18,7 +18,6 @@ router = APIRouter(
 )
 async def get_menus(
     menu: MenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> list[MenuRead]:
     return await menu.read_menus()
 
@@ -31,7 +30,6 @@ async def get_menus(
 async def add_menu(
     menu: MenuBase,
     responce: MenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> MenuRead:
     return await responce.create_menu(menu)
 
@@ -43,7 +41,6 @@ async def add_menu(
 async def get_menu(
     menu_id: UUID,
     responce: MenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> MenuRead:
     result = await responce.read_menu(menu_id=menu_id)
 
@@ -63,7 +60,6 @@ async def update_menu(
     menu_id: UUID,
     menu: MenuBase,
     responce: MenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> MenuRead:
     result = await responce.update_menu(
         menu_id=menu_id,
@@ -85,6 +81,5 @@ async def update_menu(
 async def delete_menu(
     menu_id: UUID,
     menu: MenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> None:
     await menu.del_menu(menu_id)

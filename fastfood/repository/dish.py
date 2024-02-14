@@ -13,7 +13,7 @@ class DishRepository:
     def __init__(self, session: AsyncSession = Depends(get_async_session)) -> None:
         self.db = session
 
-    async def get_dishes(self, menu_id: UUID, submenu_id: UUID) -> list[Dish]:
+    async def get_dishes(self, submenu_id: UUID) -> list[Dish]:
         query = select(Dish).where(
             Dish.parent_submenu == submenu_id,
         )
@@ -22,7 +22,6 @@ class DishRepository:
 
     async def create_dish_item(
         self,
-        menu_id: UUID,
         submenu_id: UUID,
         dish_data: Dish_db,
     ) -> Dish:
@@ -35,8 +34,6 @@ class DishRepository:
 
     async def get_dish_item(
         self,
-        menu_id: UUID,
-        submenu_id: UUID,
         dish_id: UUID,
     ) -> Dish | None:
         query = select(Dish).where(Dish.id == dish_id)
@@ -45,8 +42,6 @@ class DishRepository:
 
     async def update_dish_item(
         self,
-        menu_id: UUID,
-        submenu_id: UUID,
         dish_id: UUID,
         dish_data: Dish_db,
     ) -> Dish | None:
@@ -59,8 +54,6 @@ class DishRepository:
 
     async def delete_dish_item(
         self,
-        menu_id: UUID,
-        submenu_id: UUID,
         dish_id: UUID,
     ) -> None:
         query = delete(Dish).where(Dish.id == dish_id)

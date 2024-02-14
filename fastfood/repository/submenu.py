@@ -32,14 +32,13 @@ class SubMenuRepository:
         await self.db.commit()
         await self.db.refresh(new_submenu)
 
-        full_sub = await self.get_submenu_item(menu_id, new_submenu.id)
+        full_sub = await self.get_submenu_item(new_submenu.id)
         if full_sub is None:
             raise TypeError
         return full_sub
 
     async def get_submenu_item(
         self,
-        menu_id: UUID,
         submenu_id: UUID,
     ) -> SubMenu | None:
         s = aliased(SubMenu)
@@ -56,7 +55,6 @@ class SubMenuRepository:
 
     async def update_submenu_item(
         self,
-        menu_id: UUID,
         submenu_id: UUID,
         submenu_data: MenuBase,
     ) -> SubMenu | None:
@@ -71,7 +69,7 @@ class SubMenuRepository:
         updated_submenu = await self.db.execute(qr)
         return updated_submenu.scalar_one_or_none()
 
-    async def delete_submenu_item(self, menu_id: UUID, submenu_id: UUID) -> None:
+    async def delete_submenu_item(self, submenu_id: UUID) -> None:
         query = delete(SubMenu).where(
             SubMenu.id == submenu_id,
         )

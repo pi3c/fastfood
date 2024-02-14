@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from fastfood.schemas import Dish, DishBase
 from fastfood.service.dish import DishService
@@ -19,7 +19,6 @@ async def get_dishes(
     menu_id: UUID,
     submenu_id: UUID,
     dish: DishService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> list[Dish]:
     result = await dish.read_dishes(menu_id, submenu_id)
     return result
@@ -35,7 +34,6 @@ async def create_dish(
     submenu_id: UUID,
     dish_data: DishBase,
     dish: DishService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> Dish:
     return await dish.create_dish(
         menu_id,
@@ -53,7 +51,6 @@ async def get_dish(
     submenu_id: UUID,
     dish_id: UUID,
     dish: DishService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> Dish | None:
     result = await dish.read_dish(
         menu_id,
@@ -78,7 +75,6 @@ async def update_dish(
     dish_id: UUID,
     dish_data: DishBase,
     dish: DishService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> Dish:
     result = await dish.update_dish(
         menu_id,
@@ -102,6 +98,5 @@ async def delete_dish(
     submenu_id: UUID,
     dish_id: UUID,
     dish: DishService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> None:
-    await dish.del_dish(menu_id, submenu_id, dish_id)
+    await dish.del_dish(menu_id, dish_id)

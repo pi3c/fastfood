@@ -19,7 +19,7 @@ class SummaryService:
         self.key = get_key
         self.bg_tasks = background_tasks
 
-    async def read_data(self):
+    async def read_data(self) -> list[MenuSummary]:
 
         result = []
 

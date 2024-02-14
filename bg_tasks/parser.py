@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import gspread
 import openpyxl
@@ -43,7 +44,9 @@ async def local_xlsx_to_rows() -> list[list[str | int | float]]:
     return data
 
 
-async def rows_to_dict(rows: list[list]) -> tuple:
+async def rows_to_dict(
+    rows: list[list],
+) -> tuple[dict[int, Any], dict[Any, Any], dict[Any, Any]]:
     """Парсит строки полученные и источников в словарь"""
 
     menus = {}

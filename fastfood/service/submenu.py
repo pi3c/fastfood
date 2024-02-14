@@ -33,7 +33,7 @@ class SubmenuService:
         submenus = []
         for r in data:
             submenu = r.__dict__
-            subq = await self.submenu_repo.get_submenu_item(menu_id, r.id)
+            subq = await self.submenu_repo.get_submenu_item(r.id)
             if subq is not None:
                 submenu['dishes_count'] = len(subq.dishes)
             submenu = SubMenuRead(**submenu)
@@ -73,7 +73,7 @@ class SubmenuService:
         if cached_submenu is not None:
             return cached_submenu
 
-        data = await self.submenu_repo.get_submenu_item(menu_id, submenu_id)
+        data = await self.submenu_repo.get_submenu_item(submenu_id)
         if data is None:
             return None
         submenu = data.__dict__
@@ -90,9 +90,7 @@ class SubmenuService:
     async def update_submenu(
         self, menu_id: UUID, submenu_id: UUID, submenu_data: MenuBase
     ) -> SubMenuRead | None:
-        data = await self.submenu_repo.update_submenu_item(
-            menu_id, submenu_id, submenu_data
-        )
+        data = await self.submenu_repo.update_submenu_item(submenu_id, submenu_data)
         if data is None:
             return None
 
@@ -111,7 +109,7 @@ class SubmenuService:
         return submenu
 
     async def del_menu(self, menu_id: UUID, submenu_id: UUID) -> None:
-        await self.submenu_repo.delete_submenu_item(menu_id, submenu_id)
+        await self.submenu_repo.delete_submenu_item(submenu_id)
         await self.cache.delete(
             key=self.key(
                 'submenu',

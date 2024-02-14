@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import Any
 
 import redis.asyncio as redis  # type: ignore
 from sqlalchemy import delete, update
@@ -43,7 +44,9 @@ async def is_changed_xls() -> bool:
     return True
 
 
-async def on_menu_change(new_menu: dict, old_menu: dict, session: AsyncSession) -> dict:
+async def on_menu_change(
+    new_menu: dict, old_menu: dict, session: AsyncSession
+) -> dict[str, Any]:
     """Изменение, удаление или создание меню"""
     if new_menu and not old_menu:
         # Создаем меню
@@ -104,7 +107,7 @@ async def menus_updater(menus: dict, session: AsyncSession) -> None:
 
 async def on_submenu_change(
     new_sub: dict, old_sub: dict, session: AsyncSession
-) -> dict:
+) -> dict[str, Any]:
     if new_sub and not old_sub:
         # Создаем подменю
         submenu = SubMenu(
@@ -183,7 +186,9 @@ async def submenus_updater(submenus: dict, session: AsyncSession) -> None:
     await redis.set('ALL_SUBMENUS', pickle.dumps(submenus))
 
 
-async def on_dish_change(new_dish: dict, old_dish, session: AsyncSession) -> dict:
+async def on_dish_change(
+    new_dish: dict, old_dish, session: AsyncSession
+) -> dict[str, Any]:
     if new_dish and not old_dish:
         dish = Dish(
             title=new_dish['data']['title'],

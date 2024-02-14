@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from fastfood.schemas import MenuBase, SubMenuRead
 from fastfood.service.submenu import SubmenuService
@@ -18,7 +18,6 @@ router = APIRouter(
 async def get_submenus(
     menu_id: UUID,
     submenu: SubmenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> list[SubMenuRead]:
     result = await submenu.read_submenus(menu_id=menu_id)
     return result
@@ -33,7 +32,6 @@ async def create_submenu_item(
     menu_id: UUID,
     submenu_data: MenuBase,
     submenu: SubmenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> SubMenuRead:
     result = await submenu.create_submenu(
         menu_id=menu_id,
@@ -50,7 +48,6 @@ async def get_submenu(
     menu_id: UUID,
     submenu_id: UUID,
     submenu: SubmenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> SubMenuRead:
     result = await submenu.read_menu(
         menu_id=menu_id,
@@ -73,7 +70,6 @@ async def update_submenu(
     submenu_id: UUID,
     submenu_data: MenuBase,
     submenu: SubmenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> SubMenuRead:
     result = await submenu.update_submenu(
         menu_id=menu_id,
@@ -96,6 +92,5 @@ async def delete_submenu(
     menu_id: UUID,
     submenu_id: UUID,
     submenu: SubmenuService = Depends(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> None:
     await submenu.del_menu(menu_id=menu_id, submenu_id=submenu_id)

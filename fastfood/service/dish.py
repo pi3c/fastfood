@@ -42,7 +42,7 @@ class DishService:
         if cached_dishes is not None:
             return cached_dishes
 
-        data = await self.dish_repo.get_dishes(menu_id, submenu_id)
+        data = await self.dish_repo.get_dishes(submenu_id)
         response = []
         for row in data:
             dish = await self._convert_dish_to_dict(row)
@@ -67,7 +67,6 @@ class DishService:
     ) -> Dish:
         dish_db = Dish_db(**dish_data.model_dump())
         data = await self.dish_repo.create_dish_item(
-            menu_id,
             submenu_id,
             dish_db,
         )
@@ -95,7 +94,7 @@ class DishService:
         if cached_dish is not None:
             return cached_dish
 
-        data = await self.dish_repo.get_dish_item(menu_id, submenu_id, dish_id)
+        data = await self.dish_repo.get_dish_item(dish_id)
         if data is None:
             return None
         dish = await self._convert_dish_to_dict(data)
@@ -116,9 +115,7 @@ class DishService:
         self, menu_id: UUID, submenu_id: UUID, dish_id, dish_data: DishBase
     ) -> Dish | None:
         dish_db = Dish_db(**dish_data.model_dump())
-        data = await self.dish_repo.update_dish_item(
-            menu_id, submenu_id, dish_id, dish_db
-        )
+        data = await self.dish_repo.update_dish_item(dish_id, dish_db)
 
         if data is None:
             return None
@@ -139,10 +136,8 @@ class DishService:
 
         return dish
 
-    async def del_dish(self, menu_id: UUID, submenu_id: UUID, dish_id: UUID) -> None:
+    async def del_dish(self, menu_id: UUID, dish_id: UUID) -> None:
         await self.dish_repo.delete_dish_item(
-            menu_id,
-            submenu_id,
             dish_id,
         )
         await self.cache.delete(key=str(menu_id), bg_task=self.bg_tasks)
